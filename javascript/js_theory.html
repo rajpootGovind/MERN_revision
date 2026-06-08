@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript — Theory Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a;
+    --surface: #13162a;
+    --card: #1a1e35;
+    --border: rgba(99, 120, 255, 0.18);
+    --accent: #6378ff;
+    --accent2: #f7c948;
+    --accent3: #3de8b0;
+    --text: #e8eaf6;
+    --muted: #8b8fa8;
+    --tag-bg: rgba(99, 120, 255, 0.12);
+    --tag-text: #9aaeff;
+    --yellow: #f7c948;
+    --green: #3de8b0;
+    --red: #ff6b8a;
+    --code-bg: #0a0c18;
+    --radius: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .hero {
+    background: linear-gradient(135deg, #0d0f1a 0%, #141830 50%, #0d1228 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: 'JS';
+    position: absolute;
+    font-size: 18rem;
+    font-weight: 700;
+    color: rgba(99,120,255,0.04);
+    top: -3rem; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Fira Code', monospace;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, #a8b4ff 50%, #3de8b0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 300;
+  }
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1.2rem;
+  }
+  .badge {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border: 1px solid rgba(99,120,255,0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.02em;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .section { margin-bottom: 2.5rem; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: var(--tag-bg);
+    border: 1px solid rgba(99,120,255,0.25);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h3 .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent2);
+    flex-shrink: 0;
+  }
+  .card p, .card li {
+    color: #c5c9de;
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+  .card ul { padding-left: 1.2rem; }
+  .card li { margin-bottom: 0.3rem; }
+  code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    background: var(--code-bg);
+    color: var(--accent3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(61,232,176,0.15);
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid rgba(99,120,255,0.2);
+    border-radius: 8px;
+    padding: 1.1rem 1.2rem;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+  .kw { color: #ff79c6; }
+  .fn { color: #6cb4ff; }
+  .str { color: #f7c948; }
+  .cmt { color: #555e8a; font-style: italic; }
+  .num { color: #3de8b0; }
+  .var { color: #e8eaf6; }
+  .op { color: #ff6b8a; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .highlight-box {
+    border-left: 3px solid var(--accent);
+    background: rgba(99,120,255,0.06);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+  }
+  .highlight-box.yellow { border-color: var(--yellow); background: rgba(247,201,72,0.06); }
+  .highlight-box.green { border-color: var(--green); background: rgba(61,232,176,0.06); }
+  .highlight-box p { font-size: 0.88rem; color: #c5c9de; }
+  .highlight-box strong { color: #fff; font-weight: 600; }
+
+  .type-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin: 0.5rem 0; }
+  .type-table th { color: var(--muted); font-weight: 500; text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .type-table td { padding: 7px 10px; border-bottom: 1px solid rgba(99,120,255,0.08); color: #c5c9de; }
+  .type-table tr:last-child td { border-bottom: none; }
+  .type-table .tag { color: var(--accent3); font-family: 'Fira Code', monospace; }
+  .type-table .note { color: var(--muted); font-size: 0.78rem; }
+
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .vs-col { padding: 1rem 1.1rem; }
+  .vs-col:first-child { border-right: 1px solid var(--border); background: rgba(255,107,138,0.05); }
+  .vs-col:last-child { background: rgba(61,232,176,0.05); }
+  .vs-col h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 0.6rem; }
+  .vs-col:first-child h4 { color: var(--red); }
+  .vs-col:last-child h4 { color: var(--green); }
+  .vs-col ul { padding-left: 1rem; list-style: none; }
+  .vs-col li { font-size: 0.82rem; color: #c5c9de; padding: 3px 0; }
+  .vs-col li::before { content: '→ '; color: var(--muted); }
+
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-family: 'Fira Code', monospace; font-weight: 500; }
+  .pill.blue { background: rgba(99,120,255,0.15); color: #9aaeff; }
+  .pill.green { background: rgba(61,232,176,0.12); color: #3de8b0; }
+  .pill.yellow { background: rgba(247,201,72,0.12); color: #f7c948; }
+  .pill.red { background: rgba(255,107,138,0.12); color: #ff6b8a; }
+
+  .mern-map {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 1.2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+  }
+  .mern-box {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: 'Fira Code', monospace;
+    text-align: center;
+  }
+  .mern-arrow { color: var(--muted); font-size: 1rem; }
+  .mern-active { border: 2px solid var(--accent2); background: rgba(247,201,72,0.1); color: var(--accent2); }
+  .mern-dim { border: 1px solid var(--border); background: rgba(99,120,255,0.06); color: var(--muted); }
+  .mern-sub { font-size: 0.65rem; color: var(--muted); font-weight: 400; display: block; margin-top: 2px; }
+
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 2rem; }
+  .toc h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.8rem; }
+  .toc ol { padding-left: 1.2rem; }
+  .toc li { font-size: 0.85rem; color: var(--tag-text); padding: 3px 0; cursor: pointer; }
+  .toc li:hover { color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>JavaScript — Theory Foundation</h1>
+  <p>Before writing a single line of code — understand what JavaScript truly is</p>
+  <div class="badge-row">
+    <span class="badge">MERN Stack — Module 1</span>
+    <span class="badge">Theoretical Concepts</span>
+    <span class="badge">For IT Professionals</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- MERN Map -->
+  <div class="mern-map">
+    <div class="mern-box mern-active">M<span class="mern-sub">MongoDB</span></div>
+    <div class="mern-arrow">+</div>
+    <div class="mern-box mern-active">E<span class="mern-sub">Express.js</span></div>
+    <div class="mern-arrow">+</div>
+    <div class="mern-box mern-active">R<span class="mern-sub">React</span></div>
+    <div class="mern-arrow">+</div>
+    <div class="mern-box mern-active">N<span class="mern-sub">Node.js</span></div>
+    <div class="mern-arrow"> — all powered by → </div>
+    <div class="mern-box" style="border:2px solid var(--accent2); background:rgba(247,201,72,0.15); color:var(--accent2); font-size:1rem;">JavaScript 🟡</div>
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li>What is JavaScript?</li>
+      <li>How JavaScript Runs — The Engine</li>
+      <li>JavaScript vs Other Languages</li>
+      <li>Data Types — The Building Blocks</li>
+      <li>Variables — var, let, const</li>
+      <li>Type Coercion & Dynamic Typing</li>
+      <li>The Call Stack & Event Loop</li>
+      <li>Synchronous vs Asynchronous</li>
+      <li>Scope & Closures</li>
+      <li>Prototype & Inheritance Model</li>
+      <li>Why JavaScript for MERN?</li>
+    </ol>
+  </div>
+
+  <!-- 1. What is JavaScript -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>What is JavaScript?</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Official Definition</h3>
+      <p>JavaScript is a <strong>high-level, interpreted, single-threaded, dynamic, weakly-typed, prototype-based, multi-paradigm programming language</strong> with first-class functions.</p>
+      <p style="margin-top:0.5rem;">Each of those words carries meaning. Let's decode them.</p>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot"></span>High-Level</h3>
+        <p>You don't manage memory manually. No <code>malloc()</code>, no pointers. JavaScript abstracts hardware details. The engine handles memory allocation and garbage collection.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Interpreted</h3>
+        <p>Code is NOT compiled to machine code ahead of time. The JS engine reads and executes code line by line at runtime. Modern engines use JIT (Just-In-Time) compilation for speed.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Dynamic</h3>
+        <p>Variables don't have fixed types. A variable holding a number can later hold a string. Type is determined at <em>runtime</em>, not compile time.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Single-Threaded</h3>
+        <p>JavaScript runs on one thread — one task at a time. Yet it handles async operations (API calls, timers) through the <em>Event Loop</em>. More on this in section 07.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Prototype-Based</h3>
+        <p>Instead of classical class-based inheritance (like Java/C#), JS objects inherit directly from other objects via the <em>prototype chain</em>. ES6 <code>class</code> syntax is just sugar over this.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>First-Class Functions</h3>
+        <p>Functions are values. You can assign a function to a variable, pass it as an argument, return it from another function. This enables functional programming patterns.</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p><strong>Created in 10 days</strong> — Brendan Eich created JavaScript in 1995 for Netscape. Despite its rushed origin, it became the only language that runs natively in browsers — making it the most deployed language on Earth.</p>
+    </div>
+  </div>
+
+  <!-- 2. The Engine -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>How JavaScript Runs — The Engine</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The JS Engine</h3>
+      <p>JavaScript needs an <em>engine</em> to execute. The most important one:</p>
+      <ul style="margin-top:0.5rem;">
+        <li><code>V8</code> — Built by Google. Used in Chrome and <strong>Node.js</strong>. Written in C++.</li>
+        <li><code>SpiderMonkey</code> — Mozilla Firefox</li>
+        <li><code>JavaScriptCore (Nitro)</code> — Safari / WebKit</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>What the V8 Engine Does</h3>
+      <p>When V8 encounters your JS code, it goes through these phases:</p>
+      <pre><span class="cmt">// Source Code → Parsing → AST → Bytecode → Machine Code</span>
+
+<span class="str">1. Parsing</span>     <span class="cmt">— Reads text, checks syntax, reports SyntaxErrors</span>
+<span class="str">2. AST</span>         <span class="cmt">— Builds an Abstract Syntax Tree (tree of code structure)</span>
+<span class="str">3. Ignition</span>    <span class="cmt">— V8's interpreter; converts AST → bytecode</span>
+<span class="str">4. TurboFan</span>    <span class="cmt">— JIT compiler; "hot" (frequently-run) code compiled to machine code</span>
+<span class="str">5. Execution</span>   <span class="cmt">— CPU runs the optimized machine code</span></pre>
+    </div>
+    <div class="highlight-box green">
+      <p><strong>Node.js</strong> = V8 engine + extra C++ APIs (filesystem, network, OS access). This is why JS can run on servers — V8 runs anywhere, and Node wraps it with system-level capabilities.</p>
+    </div>
+  </div>
+
+  <!-- 3. JS vs Others -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>JavaScript vs Other Languages</h2>
+    </div>
+    <table class="type-table" style="background:var(--card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border);">
+      <thead><tr>
+        <th>Feature</th>
+        <th>JavaScript</th>
+        <th>Java / C#</th>
+        <th>Python</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Typing</td><td class="tag">Dynamic (weak)</td><td class="note">Static (strong)</td><td class="note">Dynamic (strong)</td></tr>
+        <tr><td>Execution</td><td class="tag">Interpreted + JIT</td><td class="note">Compiled (bytecode)</td><td class="note">Interpreted</td></tr>
+        <tr><td>Threading</td><td class="tag">Single-threaded</td><td class="note">Multi-threaded</td><td class="note">Multi-threaded (GIL)</td></tr>
+        <tr><td>Concurrency</td><td class="tag">Event loop (async)</td><td class="note">Threads + locks</td><td class="note">Threads + asyncio</td></tr>
+        <tr><td>Inheritance</td><td class="tag">Prototype chain</td><td class="note">Classical OOP</td><td class="note">Classical OOP</td></tr>
+        <tr><td>Runs in browser</td><td class="tag" style="color:var(--green);">✓ Only JS does</td><td class="note">✗</td><td class="note">✗ (limited)</td></tr>
+        <tr><td>Null safety</td><td class="tag" style="color:var(--red);">❌ null + undefined</td><td class="note">Partial</td><td class="note">Partial</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box yellow" style="margin-top:1rem;">
+      <p><strong>You have IT experience</strong> — if you know Java or Python, note that JS's <em>weak dynamic typing</em> will feel loose at first. <code>"5" - 2</code> evaluates to <code>3</code> in JS. TypeScript adds static typing on top of JS to fix this.</p>
+    </div>
+  </div>
+
+  <!-- 4. Data Types -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Data Types — The Building Blocks</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Two Categories</h3>
+      <div class="two-col" style="margin-top:0.75rem;">
+        <div>
+          <p style="font-size:0.8rem; color:var(--green); font-weight:600; margin-bottom:0.5rem;">PRIMITIVE (Value Types)</p>
+          <ul>
+            <li><code>string</code> — text</li>
+            <li><code>number</code> — integers &amp; floats (one type!)</li>
+            <li><code>bigint</code> — very large integers</li>
+            <li><code>boolean</code> — true / false</li>
+            <li><code>undefined</code> — declared, not assigned</li>
+            <li><code>null</code> — intentional absence</li>
+            <li><code>symbol</code> — unique identifier (ES6)</li>
+          </ul>
+        </div>
+        <div>
+          <p style="font-size:0.8rem; color:var(--accent); font-weight:600; margin-bottom:0.5rem;">REFERENCE (Object Types)</p>
+          <ul>
+            <li><code>object</code> — key-value pairs</li>
+            <li><code>array</code> — ordered list (is an object!)</li>
+            <li><code>function</code> — callable object</li>
+            <li><code>Date</code>, <code>RegExp</code>, <code>Map</code>, <code>Set</code> — built-in objects</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Primitive vs Reference — Critical Difference</h3>
+      <pre><span class="cmt">// PRIMITIVES are copied by VALUE</span>
+<span class="kw">let</span> <span class="var">a</span> <span class="op">=</span> <span class="num">10</span>;
+<span class="kw">let</span> <span class="var">b</span> <span class="op">=</span> <span class="var">a</span>;          <span class="cmt">// b gets a COPY of 10</span>
+<span class="var">b</span> <span class="op">=</span> <span class="num">20</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">a</span>);   <span class="cmt">// 10 — unchanged</span>
+
+<span class="cmt">// OBJECTS are copied by REFERENCE</span>
+<span class="kw">let</span> <span class="var">obj1</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ali"</span> };
+<span class="kw">let</span> <span class="var">obj2</span> <span class="op">=</span> <span class="var">obj1</span>;    <span class="cmt">// obj2 POINTS to same memory</span>
+<span class="var">obj2</span>.<span class="var">name</span> <span class="op">=</span> <span class="str">"Sara"</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">obj1</span>.<span class="var">name</span>); <span class="cmt">// "Sara" — obj1 also changed!</span></pre>
+      <p>This is one of the most common bug sources for beginners. Understand it deeply.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>null vs undefined — The Famous Confusion</h3>
+      <pre><span class="kw">let</span> <span class="var">x</span>;                   <span class="cmt">// undefined — JS set this automatically</span>
+<span class="kw">let</span> <span class="var">y</span> <span class="op">=</span> <span class="kw">null</span>;            <span class="cmt">// null — YOU intentionally set "no value"</span>
+
+<span class="kw">typeof</span> <span class="var">x</span>;               <span class="cmt">// "undefined"</span>
+<span class="kw">typeof</span> <span class="var">y</span>;               <span class="cmt">// "object"  ← famous JS bug, never fixed</span>
+
+<span class="var">x</span> <span class="op">==</span> <span class="var">y</span>;                 <span class="cmt">// true  (loose equality — both "empty")</span>
+<span class="var">x</span> <span class="op">===</span> <span class="var">y</span>;                <span class="cmt">// false (strict equality — different types)</span></pre>
+    </div>
+  </div>
+
+  <!-- 5. var let const -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Variables — var, let, const</h2>
+    </div>
+    <table class="type-table" style="background:var(--card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border);">
+      <thead><tr>
+        <th>Keyword</th>
+        <th>Scope</th>
+        <th>Hoisting</th>
+        <th>Reassign</th>
+        <th>Redeclare</th>
+        <th>Use When</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><code>var</code></td>
+          <td class="note">Function / Global</td>
+          <td class="tag" style="color:var(--red);">Yes (undefined)</td>
+          <td class="tag" style="color:var(--green);">✓</td>
+          <td class="tag" style="color:var(--green);">✓</td>
+          <td class="note">Avoid — legacy</td>
+        </tr>
+        <tr>
+          <td><code>let</code></td>
+          <td class="note">Block <code>{ }</code></td>
+          <td class="tag" style="color:var(--yellow);">TDZ error</td>
+          <td class="tag" style="color:var(--green);">✓</td>
+          <td class="tag" style="color:var(--red);">✗</td>
+          <td class="note">Mutable values</td>
+        </tr>
+        <tr>
+          <td><code>const</code></td>
+          <td class="note">Block <code>{ }</code></td>
+          <td class="tag" style="color:var(--yellow);">TDZ error</td>
+          <td class="tag" style="color:var(--red);">✗ (binding)</td>
+          <td class="tag" style="color:var(--red);">✗</td>
+          <td class="note">Most variables!</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card" style="margin-top:1rem;">
+      <h3><span class="dot"></span>Hoisting Explained</h3>
+      <p>JS moves variable and function <em>declarations</em> to the top of their scope during the compilation phase — but not their assignments.</p>
+      <pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="var">name</span>);  <span class="cmt">// undefined (not an error!) — var is hoisted</span>
+<span class="kw">var</span> <span class="var">name</span> <span class="op">=</span> <span class="str">"Ahmed"</span>;
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">age</span>);   <span class="cmt">// ReferenceError — let/const in TDZ (Temporal Dead Zone)</span>
+<span class="kw">let</span> <span class="var">age</span> <span class="op">=</span> <span class="num">25</span>;
+
+<span class="cmt">// Functions are FULLY hoisted — you can call them before declaration</span>
+<span class="fn">greet</span>();              <span class="cmt">// Works!</span>
+<span class="kw">function</span> <span class="fn">greet</span>() { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Hello"</span>); }</pre>
+    </div>
+    <div class="highlight-box yellow">
+      <p><strong>Rule of thumb:</strong> Always prefer <code>const</code> by default. Use <code>let</code> only when you know the value will change. Never use <code>var</code> in modern code.</p>
+    </div>
+  </div>
+
+  <!-- 6. Type Coercion -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Type Coercion & Dynamic Typing</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Implicit Coercion — JS tries to "help"</h3>
+      <pre><span class="str">"5"</span> <span class="op">+</span> <span class="num">2</span>         <span class="cmt">// "52"  — number converts to string</span>
+<span class="str">"5"</span> <span class="op">-</span> <span class="num">2</span>         <span class="cmt">// 3    — string converts to number</span>
+<span class="kw">true</span> <span class="op">+</span> <span class="kw">true</span>    <span class="cmt">// 2    — booleans convert to 1/0</span>
+<span class="kw">false</span> <span class="op">+</span> <span class="str">"hi"</span>   <span class="cmt">// "falsehi"</span>
+<span class="num">0</span> <span class="op">==</span> <span class="str">""</span>         <span class="cmt">// true  — both coerce to falsy</span>
+<span class="num">0</span> <span class="op">===</span> <span class="str">""</span>        <span class="cmt">// false — strict, no coercion</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Truthy &amp; Falsy Values</h3>
+      <p>In a boolean context, JS converts any value to true/false:</p>
+      <div class="vs-grid" style="margin-top:0.75rem;">
+        <div class="vs-col">
+          <h4>Falsy (6 values only)</h4>
+          <ul>
+            <li><code>false</code></li>
+            <li><code>0</code> and <code>-0</code> and <code>0n</code></li>
+            <li><code>""</code> (empty string)</li>
+            <li><code>null</code></li>
+            <li><code>undefined</code></li>
+            <li><code>NaN</code></li>
+          </ul>
+        </div>
+        <div class="vs-col">
+          <h4>Truthy (everything else)</h4>
+          <ul>
+            <li><code>"0"</code> (non-empty string)</li>
+            <li><code>[]</code> (empty array)</li>
+            <li><code>{}</code> (empty object)</li>
+            <li><code>-1</code></li>
+            <li><code>Infinity</code></li>
+            <li><code>function(){}</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p><strong>Always use <code>===</code></strong> (strict equality) in real code. It checks both <em>value</em> and <em>type</em> without coercion. <code>==</code> causes subtle bugs.</p>
+    </div>
+  </div>
+
+  <!-- 7. Call Stack & Event Loop -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>The Call Stack & Event Loop</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Call Stack</h3>
+      <p>JS uses a <em>stack</em> data structure to track function calls. When a function is called, it's pushed on. When it returns, it's popped off. If the stack is never popped (infinite recursion), you get a <code>Stack Overflow</code>.</p>
+      <pre><span class="kw">function</span> <span class="fn">c</span>() { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"C"</span>); }
+<span class="kw">function</span> <span class="fn">b</span>() { <span class="fn">c</span>(); }
+<span class="kw">function</span> <span class="fn">a</span>() { <span class="fn">b</span>(); }
+<span class="fn">a</span>();
+
+<span class="cmt">// Call Stack trace:
+// [a]
+// [a, b]
+// [a, b, c]
+// [a, b]  ← c returned
+// [a]     ← b returned
+// []      ← a returned</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Event Loop — How Async Works</h3>
+      <p>JS is single-threaded but non-blocking. Here's why:</p>
+      <pre><span class="cmt">// Runtime has 4 parts:</span>
+<span class="str">Call Stack</span>      <span class="cmt">— runs synchronous code</span>
+<span class="str">Web APIs</span>        <span class="cmt">— Browser/Node handles async tasks (setTimeout, fetch, fs)</span>
+<span class="str">Callback Queue</span>  <span class="cmt">— completed async callbacks wait here</span>
+<span class="str">Event Loop</span>      <span class="cmt">— watches: if stack is EMPTY, move from queue → stack</span>
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"1"</span>);                          <span class="cmt">// runs immediately → stack</span>
+<span class="fn">setTimeout</span>(() <span class="op">=></span> <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"2"</span>), <span class="num">0</span>); <span class="cmt">// sent to Web API, then queue</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"3"</span>);                          <span class="cmt">// runs immediately → stack</span>
+
+<span class="cmt">// Output: 1, 3, 2  — even with 0ms delay!</span></pre>
+    </div>
+  </div>
+
+  <!-- 8. Sync vs Async -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Synchronous vs Asynchronous</h2>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot"></span>Synchronous</h3>
+        <p>Code runs top-to-bottom, line by line. Each line waits for the previous to complete. Blocking.</p>
+        <pre><span class="kw">const</span> <span class="var">data</span> <span class="op">=</span> <span class="fn">readFile</span>(<span class="str">"file.txt"</span>);
+<span class="cmt">// BLOCKS until file is read</span>
+<span class="fn">processData</span>(<span class="var">data</span>);</pre>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Asynchronous</h3>
+        <p>Long operations are kicked off, and the program continues. When they complete, a callback/promise handles the result. Non-blocking.</p>
+        <pre><span class="fn">readFile</span>(<span class="str">"file.txt"</span>, (<span class="var">data</span>) <span class="op">=></span> {
+  <span class="fn">processData</span>(<span class="var">data</span>); <span class="cmt">// runs later</span>
+});
+<span class="cmt">// continues immediately</span></pre>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Three Async Patterns in JS (Evolution)</h3>
+      <pre><span class="cmt">// 1. Callbacks (old, leads to "callback hell")</span>
+<span class="fn">getUser</span>(<span class="num">1</span>, (<span class="var">user</span>) <span class="op">=></span> {
+  <span class="fn">getPosts</span>(<span class="var">user</span>.<span class="var">id</span>, (<span class="var">posts</span>) <span class="op">=></span> {
+    <span class="fn">getComments</span>(<span class="var">posts</span>[<span class="num">0</span>].<span class="var">id</span>, (<span class="var">comments</span>) <span class="op">=></span> {
+      <span class="cmt">// Pyramid of doom...</span>
+    });
+  });
+});
+
+<span class="cmt">// 2. Promises (ES6 - flatter)</span>
+<span class="fn">getUser</span>(<span class="num">1</span>)
+  .<span class="fn">then</span>(<span class="var">user</span> <span class="op">=></span> <span class="fn">getPosts</span>(<span class="var">user</span>.<span class="var">id</span>))
+  .<span class="fn">then</span>(<span class="var">posts</span> <span class="op">=></span> <span class="fn">getComments</span>(<span class="var">posts</span>[<span class="num">0</span>].<span class="var">id</span>))
+  .<span class="fn">catch</span>(<span class="var">err</span> <span class="op">=></span> <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">err</span>));
+
+<span class="cmt">// 3. Async/Await (modern, reads like sync)</span>
+<span class="kw">async function</span> <span class="fn">loadData</span>() {
+  <span class="kw">const</span> <span class="var">user</span>  <span class="op">=</span> <span class="kw">await</span> <span class="fn">getUser</span>(<span class="num">1</span>);
+  <span class="kw">const</span> <span class="var">posts</span> <span class="op">=</span> <span class="kw">await</span> <span class="fn">getPosts</span>(<span class="var">user</span>.<span class="var">id</span>);
+  <span class="kw">return</span> <span class="var">posts</span>;
+}</pre>
+      <p>In MERN, you will use <strong>async/await</strong> everywhere — API calls, database queries, file operations.</p>
+    </div>
+  </div>
+
+  <!-- 9. Scope & Closures -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Scope & Closures</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Scope — Where Can You See a Variable?</h3>
+      <pre><span class="kw">let</span> <span class="var">global</span> <span class="op">=</span> <span class="str">"I'm everywhere"</span>;  <span class="cmt">// Global scope</span>
+
+<span class="kw">function</span> <span class="fn">outer</span>() {
+  <span class="kw">let</span> <span class="var">x</span> <span class="op">=</span> <span class="str">"outer"</span>;               <span class="cmt">// Function scope</span>
+
+  <span class="kw">function</span> <span class="fn">inner</span>() {
+    <span class="kw">let</span> <span class="var">y</span> <span class="op">=</span> <span class="str">"inner"</span>;             <span class="cmt">// Block/function scope</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">x</span>);              <span class="cmt">// ✓ can see outer's x</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">global</span>);          <span class="cmt">// ✓ can see global</span>
+  }
+  <span class="cmt">// console.log(y) — ✗ Error: y is not defined here</span>
+}</pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Closures — A Function That Remembers Its Birthplace</h3>
+      <p>A closure is when an inner function <em>retains access</em> to its outer function's variables even after the outer function has returned. This is fundamental to React hooks, middleware, and event handlers.</p>
+      <pre><span class="kw">function</span> <span class="fn">makeCounter</span>() {
+  <span class="kw">let</span> <span class="var">count</span> <span class="op">=</span> <span class="num">0</span>;                <span class="cmt">// This variable is "closed over"</span>
+  <span class="kw">return function</span>() {
+    <span class="var">count</span><span class="op">++</span>;
+    <span class="kw">return</span> <span class="var">count</span>;
+  };
+}
+
+<span class="kw">const</span> <span class="var">counter</span> <span class="op">=</span> <span class="fn">makeCounter</span>();
+<span class="fn">counter</span>();   <span class="cmt">// 1</span>
+<span class="fn">counter</span>();   <span class="cmt">// 2</span>
+<span class="fn">counter</span>();   <span class="cmt">// 3 — count persists in closure!</span></pre>
+    </div>
+  </div>
+
+  <!-- 10. Prototype -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Prototype & Inheritance Model</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Prototype Chain</h3>
+      <p>Every JS object has an internal <code>[[Prototype]]</code> link. When you access a property, JS looks up the chain until it finds it or reaches <code>null</code>.</p>
+      <pre><span class="kw">const</span> <span class="var">arr</span> <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="var">arr</span>.<span class="fn">map</span>(<span class="var">x</span> <span class="op">=></span> <span class="var">x</span> <span class="op">*</span> <span class="num">2</span>);   <span class="cmt">// .map() is NOT on arr itself</span>
+<span class="cmt">// arr → Array.prototype (has .map) → Object.prototype → null</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>ES6 Class — Syntactic Sugar</h3>
+      <pre><span class="kw">class</span> <span class="fn">Animal</span> {
+  <span class="fn">constructor</span>(<span class="var">name</span>) {
+    <span class="kw">this</span>.<span class="var">name</span> <span class="op">=</span> <span class="var">name</span>;
+  }
+  <span class="fn">speak</span>() {
+    <span class="kw">return</span> <span class="str">`<span class="var">${this.name}</span> makes a sound`</span>;
+  }
+}
+
+<span class="kw">class</span> <span class="fn">Dog</span> <span class="kw">extends</span> <span class="fn">Animal</span> {
+  <span class="fn">speak</span>() {
+    <span class="kw">return</span> <span class="str">`<span class="var">${this.name}</span> barks`</span>;
+  }
+}
+
+<span class="kw">const</span> <span class="var">d</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">Dog</span>(<span class="str">"Rex"</span>);
+<span class="var">d</span>.<span class="fn">speak</span>();   <span class="cmt">// "Rex barks"</span></pre>
+      <p>Under the hood, this is still prototype chains. <code>class</code> is just cleaner syntax introduced in ES6 (2015).</p>
+    </div>
+  </div>
+
+  <!-- 11. Why JS for MERN -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2>Why JavaScript for MERN?</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>One Language, Full Stack</h3>
+      <p>Before Node.js, backend was Java/PHP/Python and frontend was JS — two completely different worlds. MERN unifies everything:</p>
+      <pre><span class="cmt">// Frontend (React) — same JS</span>
+<span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ahmed"</span>, <span class="var">age</span>: <span class="num">30</span> };
+
+<span class="cmt">// Backend (Node/Express) — same JS</span>
+<span class="var">app</span>.<span class="fn">get</span>(<span class="str">"/user"</span>, (<span class="var">req</span>, <span class="var">res</span>) <span class="op">=></span> {
+  <span class="var">res</span>.<span class="fn">json</span>({ <span class="var">name</span>: <span class="str">"Ahmed"</span>, <span class="var">age</span>: <span class="num">30</span> });
+});
+
+<span class="cmt">// Database queries (Mongoose) — same JS</span>
+<span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> <span class="kw">await</span> <span class="var">User</span>.<span class="fn">findById</span>(<span class="var">id</span>);</pre>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot"></span>JSON is Native</h3>
+        <p>MongoDB stores BSON (binary JSON). APIs send JSON. React uses JSON-like JSX. JavaScript's object literals ARE JSON. Perfect fit — no translation needed.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>NPM Ecosystem</h3>
+        <p>2+ million packages. Whether you need authentication (Passport), validation (Joi), email (Nodemailer), or payments (Stripe) — it's one <code>npm install</code> away.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); text-align:center;">
+    <p style="color:var(--muted); font-size:0.82rem; font-family:'Fira Code',monospace;">
+      MERN Stack Course — Module 01 &nbsp;|&nbsp; JavaScript Theory &nbsp;|&nbsp; 
+      <span style="color:var(--accent);">Next: Exercise 01 → Variables & Data Types</span>
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -43,7 +43,10 @@ console.log(typeof isEnrolled);        // boolean
 // --------------------
 
 // your code here...
+const studentName = "Arpit";
+const studentAge = 24;
 
+console.log(`Hi I am ${studentName} and my age is ${studentAge}`)
 
 // --------------------
 //  TODO A2:
@@ -53,6 +56,8 @@ console.log(typeof isEnrolled);        // boolean
 // --------------------
 
 // your code here...
+currentModule = 2; //CurrentModule already declared at line 29
+console.log(`Now on ${currentModule}`)
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,7 +86,8 @@ console.log(typeof anArray);           // "object"  ← arrays are objects
 console.log(typeof anObject);          // "object"
 
 // To properly check for arrays:
-console.log(Array.isArray(anArray));   // true
+console.log(Array.isArray(anArray));   // true 
+//Array.isArray() is a built-in JavaScript method that checks whether a value is an array or not.
 console.log(Array.isArray(anObject));  // false
 
 // --------------------
@@ -93,6 +99,13 @@ console.log(Array.isArray(anObject));  // false
 // --------------------
 
 // your code here...
+let contactNumber = 9839559321;
+let city = "bangalore";
+let isDeveloper = false;
+
+console.log(`data type of number is: ${typeof (contactNumber)}`)
+console.log(`data type of city is: ${typeof (city)}`)
+console.log(`date type of boolean is: ${typeof (isDeveloper)}`)
 
 
 // --------------------
@@ -100,10 +113,10 @@ console.log(Array.isArray(anObject));  // false
 //  Run the code below, then write what you expected in the comments.
 // --------------------
 
-console.log(typeof null);              // Expected: ________
-console.log(typeof undefined);         // Expected: ________
-console.log(typeof function(){});      // Expected: ________
-console.log(Array.isArray([]));        // Expected: ________
+console.log(typeof null);              // Expected:object
+console.log(typeof undefined);         // Expected: undefined
+console.log(typeof function(){});      // Expected: function
+console.log(Array.isArray([]));        // Expected:true
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -142,6 +155,8 @@ console.log("  spaces  ".trim());     // "spaces"
 // --------------------
 
 // your code here...
+let email = "        JohnDoe24@gmail.com"  ;
+console.log((email.trim()).toLowerCase())
 
 
 // --------------------
@@ -152,7 +167,8 @@ console.log("  spaces  ".trim());     // "spaces"
 // --------------------
 
 // your code here...
-
+let newString = `My name is ${studentName} and I am learning javasacript. Module ${currentModule} of 12`;
+console.log(newString)
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION D — Numbers & Math
@@ -194,6 +210,10 @@ console.log(isNaN(Number("hi"))); // true
 
 // your code here...
 
+let testScores = [78, 92, 85];
+
+let average =(((testScores[0]+testScores[1]+testScores[2])/testScores.length).toFixed(2))
+console.log(`Average is ${average}`)
 
 // --------------------
 //  TODO D2:
@@ -204,6 +224,9 @@ console.log(isNaN(Number("hi"))); // true
 
 // your code here...
 
+let randomNumb = (Math.random()*10) + 1;
+
+console.log(`Random Number is ${randomNumb}`)
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION E — Comparison & Logical Operators
@@ -215,6 +238,7 @@ console.log("\n=== SECTION E: Comparisons ===");
 console.log(5 === 5);       // true
 console.log(5 === "5");     // false — different types
 console.log(5 == "5");      // true  — type coercion (AVOID!)
+//Type coercion means JavaScript automatically converts one data type into another when performing an operation.
 console.log(5 !== 6);       // true
 console.log(10 > 5);        // true
 console.log(10 >= 10);      // true
@@ -247,7 +271,13 @@ console.log(score ?? 100);   // 0   — correct! only null/undefined triggers
 // --------------------
 
 // your code here...
+const userAge = 20;
 
+if(userAge>18 && userAge<=65){
+  console.log(true)
+}else{
+  console.log(false)
+}
 
 // --------------------
 //  TODO E2:
@@ -257,7 +287,9 @@ console.log(score ?? 100);   // 0   — correct! only null/undefined triggers
 // --------------------
 
 // your code here...
-
+const userN = null;
+const Anonymous = userN ?? "Anonymous";
+console.log(Anonymous)
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION F — Type Conversion Challenges
@@ -281,12 +313,12 @@ console.log(undefined + 1);     // NaN
 //  Then run and see how many you got right.
 // --------------------
 
-console.log("5" - "3");          // Prediction: _____
-console.log("5" + + "3");        // Prediction: _____  (tricky!)
+console.log("5" - "3");          // Prediction: 2
+console.log("5" + + "3");        // Prediction: NaN (tricky!)
 console.log([] + []);            // Prediction: _____
 console.log([] + {});            // Prediction: _____
-console.log(+"");                // Prediction: _____
-console.log(+true);              // Prediction: _____
+console.log(+"");                // Prediction: 0
+console.log(+true);              // Prediction: 1
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -327,21 +359,29 @@ const studentData = {
 // --------------------
 
 // your code here...
+console.log(`student: ${studentData.name}`)
+const sum = studentData.scores.reduce((total, s)=>total + s, 0)
+const TotalScore = console.log(`Total Score: ${studentData.scores.length}`)
+const averageScore = console.log(`Average Score: ${(sum/(studentData.scores.length)).toFixed(2)}`)
+const highScore = console.log(`Highest Score: ${Math.max(...studentData.scores)}`)
+const lowestScore = console.log(`Lowest Score: ${Math.min(...studentData.scores)}`)
 
+const passedAllModules = studentData.scores.every(score => score >= studentData.passingGrade);
+console.log(`Passed all Modules : ${passedAllModules}`);
 
 // ==========================================================================
 //  END OF EXERCISE 01
 //
 //  ✅ CHECKLIST before moving to Exercise 02:
-//  [ ] I understand when to use const vs let
-//  [ ] I know the 7 primitive types
-//  [ ] I can explain typeof null returning "object"
-//  [ ] I use === instead of ==
-//  [ ] I understand truthy/falsy
-//  [ ] I can use template literals confidently
-//  [ ] I can convert between types intentionally
-//  [ ] I completed all TODO sections
-//  [ ] Bonus challenge done
+//  ✅ I understand when to use const vs let
+//  ✅ I know the 7 primitive types
+//  ✅ I can explain typeof null returning "object"
+//  ✅ I use === instead of ==
+//  ✅ I understand truthy/falsy
+//  ✅ I can use template literals confidently
+//  ✅ I can convert between types intentionally
+//  ✅ I completed all TODO sections
+//  ✅ Bonus challenge done
 //
 //  NEXT: Exercise 02 → Control Flow (if/else, switch, loops)
 // ==========================================================================

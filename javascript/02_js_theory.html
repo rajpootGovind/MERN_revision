@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS-02 — Control Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a; --surface: #13162a; --card: #1a1e35;
+    --border: rgba(99,120,255,0.18); --accent: #6378ff;
+    --accent2: #f7c948; --accent3: #3de8b0;
+    --text: #e8eaf6; --muted: #8b8fa8;
+    --tag-bg: rgba(99,120,255,0.12); --tag-text: #9aaeff;
+    --yellow: #f7c948; --green: #3de8b0; --red: #ff6b8a;
+    --code-bg: #0a0c18; --radius: 10px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+  .hero{background:linear-gradient(135deg,#0d0f1a,#141830,#0d1228);border-bottom:1px solid var(--border);padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'{}';position:absolute;font-size:16rem;font-weight:700;color:rgba(99,120,255,0.04);top:-2rem;left:50%;transform:translateX(-50%);font-family:'Fira Code',monospace;pointer-events:none;}
+  .hero h1{font-size:2.4rem;font-weight:700;background:linear-gradient(135deg,#fff,#a8b4ff,#3de8b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+  .hero p{color:var(--muted);font-size:0.95rem;font-weight:300;}
+  .badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;}
+  .badge{background:var(--tag-bg);color:var(--tag-text);border:1px solid rgba(99,120,255,0.25);padding:4px 12px;border-radius:20px;font-size:0.78rem;font-family:'Fira Code',monospace;}
+  .container{max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+  .section{margin-bottom:2.5rem;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:1.2rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
+  .section-num{font-family:'Fira Code',monospace;font-size:.75rem;color:var(--accent);background:var(--tag-bg);border:1px solid rgba(99,120,255,.25);padding:3px 8px;border-radius:4px;}
+  .section-header h2{font-size:1.25rem;font-weight:600;color:#fff;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.4rem;margin-bottom:1rem;}
+  .card h3{font-size:.95rem;font-weight:600;color:var(--accent2);margin-bottom:.6rem;display:flex;align-items:center;gap:8px;}
+  .card h3 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);flex-shrink:0;}
+  .card p,.card li{color:#c5c9de;font-size:.88rem;line-height:1.75;}
+  .card ul{padding-left:1.2rem;}
+  .card li{margin-bottom:.3rem;}
+  code{font-family:'Fira Code',monospace;font-size:.82rem;background:var(--code-bg);color:var(--accent3);padding:2px 6px;border-radius:4px;border:1px solid rgba(61,232,176,.15);}
+  pre{background:var(--code-bg);border:1px solid rgba(99,120,255,.2);border-radius:8px;padding:1.1rem 1.2rem;overflow-x:auto;margin:.75rem 0;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.7;}
+  .kw{color:#ff79c6;} .fn{color:#6cb4ff;} .str{color:#f7c948;} .cmt{color:#555e8a;font-style:italic;} .num{color:#3de8b0;} .var{color:#e8eaf6;} .op{color:#ff6b8a;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+  .highlight-box{border-left:3px solid var(--accent);background:rgba(99,120,255,.06);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1rem 0;}
+  .highlight-box.yellow{border-color:var(--yellow);background:rgba(247,201,72,.06);}
+  .highlight-box.green{border-color:var(--green);background:rgba(61,232,176,.06);}
+  .highlight-box.red{border-color:var(--red);background:rgba(255,107,138,.06);}
+  .highlight-box p{font-size:.88rem;color:#c5c9de;}
+  .highlight-box strong{color:#fff;font-weight:600;}
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .vs-col{padding:1rem 1.1rem;}
+  .vs-col:first-child{border-right:1px solid var(--border);background:rgba(255,107,138,.05);}
+  .vs-col:last-child{background:rgba(61,232,176,.05);}
+  .vs-col h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:.6rem;}
+  .vs-col:first-child h4{color:var(--red);}
+  .vs-col:last-child h4{color:var(--green);}
+  .vs-col ul{padding-left:1rem;list-style:none;}
+  .vs-col li{font-size:.82rem;color:#c5c9de;padding:3px 0;}
+  .vs-col li::before{content:'→ ';color:var(--muted);}
+  .method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-top:.75rem;}
+  .method-card{background:rgba(99,120,255,.06);border:1px solid rgba(99,120,255,.18);border-radius:8px;padding:.8rem 1rem;}
+  .method-card .name{font-family:'Fira Code',monospace;font-size:.82rem;color:var(--accent3);font-weight:500;margin-bottom:.3rem;}
+  .method-card .desc{font-size:.78rem;color:var(--muted);line-height:1.5;}
+  .method-card .returns{font-size:.72rem;color:var(--accent2);margin-top:.3rem;font-family:'Fira Code',monospace;}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>JS-02 — Control Flow</h1>
+  <p>Decision making, loops, and iteration — the logic engine of every program</p>
+  <div class="badge-row">
+    <span class="badge">MERN Stack — Module 2</span>
+    <span class="badge">if / switch / loops / array methods</span>
+  </div>
+</div>
+<div class="container">
+
+  <!-- SECTION 1: if/else -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>if / else if / else</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Basic Structure</h3>
+      <pre><span class="kw">const</span> <span class="var">score</span> <span class="op">=</span> <span class="num">72</span>;
+
+<span class="kw">if</span> (<span class="var">score</span> <span class="op">>=</span> <span class="num">90</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Grade: A"</span>);
+} <span class="kw">else if</span> (<span class="var">score</span> <span class="op">>=</span> <span class="num">75</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Grade: B"</span>);
+} <span class="kw">else if</span> (<span class="var">score</span> <span class="op">>=</span> <span class="num">60</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Grade: C"</span>);  <span class="cmt">// ← this runs</span>
+} <span class="kw">else</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Grade: F"</span>);
+}</pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Ternary Operator — One-Line if/else</h3>
+      <p>Syntax: <code>condition ? value_if_true : value_if_false</code></p>
+      <pre><span class="kw">const</span> <span class="var">age</span> <span class="op">=</span> <span class="num">20</span>;
+
+<span class="cmt">// Long form</span>
+<span class="kw">let</span> <span class="var">access</span>;
+<span class="kw">if</span> (<span class="var">age</span> <span class="op">>=</span> <span class="num">18</span>) { <span class="var">access</span> <span class="op">=</span> <span class="str">"allowed"</span>; }
+<span class="kw">else</span> { <span class="var">access</span> <span class="op">=</span> <span class="str">"denied"</span>; }
+
+<span class="cmt">// Ternary — same thing</span>
+<span class="kw">const</span> <span class="var">access2</span> <span class="op">=</span> <span class="var">age</span> <span class="op">>=</span> <span class="num">18</span> <span class="op">?</span> <span class="str">"allowed"</span> <span class="op">:</span> <span class="str">"denied"</span>;
+
+<span class="cmt">// In React JSX — you'll use this constantly</span>
+<span class="cmt">// &lt;div&gt;{isLoggedIn ? &lt;Dashboard /&gt; : &lt;Login /&gt;}&lt;/div&gt;</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Common Mistakes</h3>
+      <pre><span class="cmt">// ❌ Assignment inside condition — a nasty bug</span>
+<span class="kw">let</span> <span class="var">x</span> <span class="op">=</span> <span class="num">5</span>;
+<span class="kw">if</span> (<span class="var">x</span> <span class="op">=</span> <span class="num">10</span>) { <span class="cmt">// = assigns, not compares! Always true.</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"runs"</span>);  <span class="cmt">// always runs</span>
+}
+
+<span class="cmt">// ✅ Should be</span>
+<span class="kw">if</span> (<span class="var">x</span> <span class="op">===</span> <span class="num">10</span>) { ... }
+
+<span class="cmt">// ❌ Checking object/array equality by value</span>
+<span class="kw">const</span> <span class="var">a</span> <span class="op">=</span> [<span class="num">1</span>,<span class="num">2</span>];
+<span class="kw">const</span> <span class="var">b</span> <span class="op">=</span> [<span class="num">1</span>,<span class="num">2</span>];
+<span class="var">a</span> <span class="op">===</span> <span class="var">b</span>;  <span class="cmt">// false — different objects in memory!</span>
+<span class="cmt">// Use JSON.stringify(a) === JSON.stringify(b) or a library</span></pre>
+    </div>
+    <div class="highlight-box yellow">
+      <p><strong>MERN context:</strong> In Express route handlers you'll check <code>if (!req.body.email)</code>, in React you'll conditionally render components with ternary, in Mongoose you'll check <code>if (!user)</code> before returning 404.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2: switch -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>switch Statement</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Syntax & break</h3>
+      <pre><span class="kw">const</span> <span class="var">day</span> <span class="op">=</span> <span class="str">"Monday"</span>;
+
+<span class="kw">switch</span> (<span class="var">day</span>) {
+  <span class="kw">case</span> <span class="str">"Monday"</span><span class="op">:</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Start of the week"</span>);
+    <span class="kw">break</span>;                        <span class="cmt">// ← MUST have break or it falls through!</span>
+  <span class="kw">case</span> <span class="str">"Friday"</span><span class="op">:</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"End of work week"</span>);
+    <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="str">"Saturday"</span><span class="op">:</span>
+  <span class="kw">case</span> <span class="str">"Sunday"</span><span class="op">:</span>                 <span class="cmt">// two cases, one handler (fall-through used intentionally)</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Weekend!"</span>);
+    <span class="kw">break</span>;
+  <span class="kw">default</span><span class="op">:</span>                        <span class="cmt">// like else — runs if no case matches</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Midweek"</span>);
+}</pre>
+    </div>
+    <div class="vs-grid">
+      <div class="vs-col">
+        <h4>Use switch when</h4>
+        <ul>
+          <li>One variable, many fixed values</li>
+          <li>Matching strings or numbers</li>
+          <li>Redux reducers (action types)</li>
+          <li>HTTP method routing logic</li>
+        </ul>
+      </div>
+      <div class="vs-col">
+        <h4>Use if/else when</h4>
+        <ul>
+          <li>Range checks (> , &lt;, >=)</li>
+          <li>Complex boolean conditions</li>
+          <li>Multiple variables in condition</li>
+          <li>Conditions with &&, ||</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Loops -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Loops</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>for Loop — Classic, Count-Based</h3>
+      <pre><span class="cmt">// Syntax: for (init; condition; update)</span>
+<span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="num">5</span>; <span class="var">i</span><span class="op">++</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">i</span>);  <span class="cmt">// 0,1,2,3,4</span>
+}
+
+<span class="cmt">// Loop over an array</span>
+<span class="kw">const</span> <span class="var">fruits</span> <span class="op">=</span> [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"mango"</span>];
+<span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">fruits</span>.<span class="var">length</span>; <span class="var">i</span><span class="op">++</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">fruits</span>[<span class="var">i</span>]);
+}</pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>for...of — Modern, Cleaner Array/String Loop</h3>
+      <pre><span class="kw">const</span> <span class="var">fruits</span> <span class="op">=</span> [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"mango"</span>];
+
+<span class="kw">for</span> (<span class="kw">const</span> <span class="var">fruit</span> <span class="kw">of</span> <span class="var">fruits</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">fruit</span>);  <span class="cmt">// apple, banana, mango</span>
+}
+
+<span class="cmt">// Also works on strings</span>
+<span class="kw">for</span> (<span class="kw">const</span> <span class="var">char</span> <span class="kw">of</span> <span class="str">"MERN"</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">char</span>);  <span class="cmt">// M, E, R, N</span>
+}</pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>for...in — Loop Over Object Keys</h3>
+      <pre><span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ali"</span>, <span class="var">age</span>: <span class="num">28</span>, <span class="var">role</span>: <span class="str">"dev"</span> };
+
+<span class="kw">for</span> (<span class="kw">const</span> <span class="var">key</span> <span class="kw">in</span> <span class="var">user</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`<span class="var">${key}</span>: <span class="var">${user[key]}</span>`</span>);
+  <span class="cmt">// name: Ali</span>
+  <span class="cmt">// age: 28</span>
+  <span class="cmt">// role: dev</span>
+}
+<span class="cmt">// Note: for...of on objects throws an error. for...in is for objects.</span></pre>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot"></span>while Loop</h3>
+        <pre><span class="kw">let</span> <span class="var">count</span> <span class="op">=</span> <span class="num">0</span>;
+<span class="kw">while</span> (<span class="var">count</span> <span class="op">&lt;</span> <span class="num">3</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">count</span>);
+  <span class="var">count</span><span class="op">++</span>;
+}
+<span class="cmt">// 0, 1, 2
+// Use when you don't know
+// how many iterations upfront</span></pre>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>do...while Loop</h3>
+        <pre><span class="kw">let</span> <span class="var">n</span> <span class="op">=</span> <span class="num">10</span>;
+<span class="kw">do</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">n</span>);
+  <span class="var">n</span><span class="op">++</span>;
+} <span class="kw">while</span> (<span class="var">n</span> <span class="op">&lt;</span> <span class="num">3</span>);
+<span class="cmt">// prints 10 ONCE
+// Body always runs at least
+// once — then checks condition</span></pre>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>break and continue</h3>
+      <pre><span class="cmt">// break — exit the loop entirely</span>
+<span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="num">10</span>; <span class="var">i</span><span class="op">++</span>) {
+  <span class="kw">if</span> (<span class="var">i</span> <span class="op">===</span> <span class="num">5</span>) <span class="kw">break</span>;
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">i</span>);  <span class="cmt">// 0,1,2,3,4</span>
+}
+
+<span class="cmt">// continue — skip this iteration, go to next</span>
+<span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="num">6</span>; <span class="var">i</span><span class="op">++</span>) {
+  <span class="kw">if</span> (<span class="var">i</span> <span class="op">%</span> <span class="num">2</span> <span class="op">===</span> <span class="num">0</span>) <span class="kw">continue</span>;  <span class="cmt">// skip even numbers</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">i</span>);  <span class="cmt">// 1,3,5</span>
+}</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Array Methods -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Array Iteration Methods — The MERN Workhorses</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Quick Reference</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="name">.forEach()</div><div class="desc">Run a function for each item. No return value.</div><div class="returns">returns → undefined</div></div>
+        <div class="method-card"><div class="name">.map()</div><div class="desc">Transform each item. Returns a NEW array.</div><div class="returns">returns → new array</div></div>
+        <div class="method-card"><div class="name">.filter()</div><div class="desc">Keep items that pass a test. Returns NEW array.</div><div class="returns">returns → new array</div></div>
+        <div class="method-card"><div class="name">.find()</div><div class="desc">Returns the FIRST item that passes the test.</div><div class="returns">returns → item or undefined</div></div>
+        <div class="method-card"><div class="name">.findIndex()</div><div class="desc">Like find() but returns the index.</div><div class="returns">returns → number or -1</div></div>
+        <div class="method-card"><div class="name">.some()</div><div class="desc">True if ANY item passes the test.</div><div class="returns">returns → boolean</div></div>
+        <div class="method-card"><div class="name">.every()</div><div class="desc">True if ALL items pass the test.</div><div class="returns">returns → boolean</div></div>
+        <div class="method-card"><div class="name">.reduce()</div><div class="desc">Boil array down to a single value.</div><div class="returns">returns → anything</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>forEach vs map — Most Confused Pair</h3>
+      <pre><span class="kw">const</span> <span class="var">prices</span> <span class="op">=</span> [<span class="num">100</span>, <span class="num">200</span>, <span class="num">300</span>];
+
+<span class="cmt">// forEach — side effects only, returns nothing</span>
+<span class="var">prices</span>.<span class="fn">forEach</span>((<span class="var">p</span>) <span class="op">=></span> <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">p</span>));  <span class="cmt">// just prints</span>
+
+<span class="cmt">// map — transforms, returns new array</span>
+<span class="kw">const</span> <span class="var">discounted</span> <span class="op">=</span> <span class="var">prices</span>.<span class="fn">map</span>((<span class="var">p</span>) <span class="op">=></span> <span class="var">p</span> <span class="op">*</span> <span class="num">0.9</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">discounted</span>);  <span class="cmt">// [90, 180, 270]</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">prices</span>);      <span class="cmt">// [100, 200, 300] — ORIGINAL UNCHANGED</span>
+
+<span class="cmt">// In React you'll use .map() to render lists:</span>
+<span class="cmt">// products.map(p => &lt;ProductCard key={p.id} product={p} /&gt;)</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>filter, find, some, every</h3>
+      <pre><span class="kw">const</span> <span class="var">users</span> <span class="op">=</span> [
+  { <span class="var">id</span>: <span class="num">1</span>, <span class="var">name</span>: <span class="str">"Ali"</span>,  <span class="var">active</span>: <span class="kw">true</span>  },
+  { <span class="var">id</span>: <span class="num">2</span>, <span class="var">name</span>: <span class="str">"Sara"</span>, <span class="var">active</span>: <span class="kw">false</span> },
+  { <span class="var">id</span>: <span class="num">3</span>, <span class="var">name</span>: <span class="str">"Riya"</span>, <span class="var">active</span>: <span class="kw">true</span>  },
+];
+
+<span class="cmt">// filter — get all active users</span>
+<span class="kw">const</span> <span class="var">active</span> <span class="op">=</span> <span class="var">users</span>.<span class="fn">filter</span>((<span class="var">u</span>) <span class="op">=></span> <span class="var">u</span>.<span class="var">active</span>);
+<span class="cmt">// [{id:1,...}, {id:3,...}]</span>
+
+<span class="cmt">// find — first user with id 2</span>
+<span class="kw">const</span> <span class="var">sara</span> <span class="op">=</span> <span class="var">users</span>.<span class="fn">find</span>((<span class="var">u</span>) <span class="op">=></span> <span class="var">u</span>.<span class="var">id</span> <span class="op">===</span> <span class="num">2</span>);
+<span class="cmt">// {id:2, name:"Sara", active:false}</span>
+
+<span class="cmt">// some — is any user inactive?</span>
+<span class="kw">const</span> <span class="var">hasInactive</span> <span class="op">=</span> <span class="var">users</span>.<span class="fn">some</span>((<span class="var">u</span>) <span class="op">=></span> <span class="op">!</span><span class="var">u</span>.<span class="var">active</span>);  <span class="cmt">// true</span>
+
+<span class="cmt">// every — are all users active?</span>
+<span class="kw">const</span> <span class="var">allActive</span> <span class="op">=</span> <span class="var">users</span>.<span class="fn">every</span>((<span class="var">u</span>) <span class="op">=></span> <span class="var">u</span>.<span class="var">active</span>);   <span class="cmt">// false</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>reduce — The Power Tool</h3>
+      <pre><span class="kw">const</span> <span class="var">orders</span> <span class="op">=</span> [
+  { <span class="var">item</span>: <span class="str">"Book"</span>,  <span class="var">price</span>: <span class="num">250</span> },
+  { <span class="var">item</span>: <span class="str">"Pen"</span>,   <span class="var">price</span>: <span class="num">30</span>  },
+  { <span class="var">item</span>: <span class="str">"Bag"</span>,   <span class="var">price</span>: <span class="num">800</span> },
+];
+
+<span class="cmt">// Sum all prices</span>
+<span class="kw">const</span> <span class="var">total</span> <span class="op">=</span> <span class="var">orders</span>.<span class="fn">reduce</span>((<span class="var">acc</span>, <span class="var">order</span>) <span class="op">=></span> {
+  <span class="kw">return</span> <span class="var">acc</span> <span class="op">+</span> <span class="var">order</span>.<span class="var">price</span>;
+}, <span class="num">0</span>);  <span class="cmt">// ← 0 is the initial accumulator value</span>
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">total</span>);  <span class="cmt">// 1080</span>
+
+<span class="cmt">// reduce can build any shape — array, object, number, string
+// How it works:
+// Round 1: acc=0,   order={Book,250}  → 0+250   = 250
+// Round 2: acc=250, order={Pen,30}    → 250+30  = 280
+// Round 3: acc=280, order={Bag,800}   → 280+800 = 1080</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Chaining Methods — Real MERN Pattern</h3>
+      <pre><span class="kw">const</span> <span class="var">products</span> <span class="op">=</span> [
+  { <span class="var">name</span>: <span class="str">"Laptop"</span>,  <span class="var">price</span>: <span class="num">45000</span>, <span class="var">inStock</span>: <span class="kw">true</span>  },
+  { <span class="var">name</span>: <span class="str">"Phone"</span>,   <span class="var">price</span>: <span class="num">20000</span>, <span class="var">inStock</span>: <span class="kw">false</span> },
+  { <span class="var">name</span>: <span class="str">"Tablet"</span>,  <span class="var">price</span>: <span class="num">30000</span>, <span class="var">inStock</span>: <span class="kw">true</span>  },
+  { <span class="var">name</span>: <span class="str">"Watch"</span>,   <span class="var">price</span>: <span class="num">8000</span>,  <span class="var">inStock</span>: <span class="kw">true</span>  },
+];
+
+<span class="cmt">// Get names of in-stock products priced above ₹10,000</span>
+<span class="kw">const</span> <span class="var">result</span> <span class="op">=</span> <span class="var">products</span>
+  .<span class="fn">filter</span>((<span class="var">p</span>) <span class="op">=></span> <span class="var">p</span>.<span class="var">inStock</span> <span class="op">&&</span> <span class="var">p</span>.<span class="var">price</span> <span class="op">></span> <span class="num">10000</span>)
+  .<span class="fn">map</span>((<span class="var">p</span>) <span class="op">=></span> <span class="var">p</span>.<span class="var">name</span>);
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">result</span>);  <span class="cmt">// ["Laptop", "Tablet"]</span>
+
+<span class="cmt">// This exact pattern is used in Express to process API results</span>
+<span class="cmt">// and in React to render filtered lists.</span></pre>
+    </div>
+    <div class="highlight-box green">
+      <p><strong>Rule of thumb:</strong> If you're writing a <code>for</code> loop over an array and building a new array inside it — stop. There's a method for that. <code>map</code>, <code>filter</code>, or <code>reduce</code> is almost always cleaner.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;">
+    <p style="color:var(--muted);font-size:.82rem;font-family:'Fira Code',monospace;">
+      MERN Stack Course — Module 02 &nbsp;|&nbsp; Control Flow &nbsp;|&nbsp;
+      <span style="color:var(--accent);">Next: JS-03 → Functions</span>
+    </p>
+  </div>
+</div>
+</body>
+</html>

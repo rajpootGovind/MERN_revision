@@ -17,7 +17,7 @@
 //  SECTION A — Function Declaration vs Expression vs Arrow
 // ─────────────────────────────────────────────────────────────────────────────
 
-console.log("=== SECTION A: Function Types ===");
+console.log("=== SECTION A: Function Types ===")
 
 // Example already done for you — three ways to write the same function
 function squareDeclaration(n) {

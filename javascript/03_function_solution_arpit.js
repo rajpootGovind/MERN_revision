@@ -208,13 +208,15 @@ console.log(sq(6)); // should be 36
 
 function divide(a, b){
 
-  if(a!==0&&b===0){
-    return "Error: division by 0"
-  }else if(typeof a!=="number"){
-    return "Error: non-numeric input"
-  }else{
-    return a/b;
-  }
+if(typeof a !== "number" || typeof b !== "number"){
+  return "non-numeric"
+}
+
+if(b===0){
+  return "division by zero"
+}else{
+  return (a /b).toFixed(4)
+}
 
 }
 console.log(divide(10, 2));
@@ -245,6 +247,37 @@ console.log("\n=== SECTION D: First-Class Functions ===");
 // --------------------
 
 // your code here...
+const validator = {
+  isEmail(emailAddress){
+       if(emailAddress.includes("@") && emailAddress.includes(".")){
+        return true;
+       }
+       return false;
+  },
+
+  isPhone(number){
+      if(/^\d{10}$/.test(number)){
+       return true;
+      }
+      return false;
+  },
+
+  isEmpty(string){
+    if(string.trim() ===""){
+      return true;
+    }
+    return false;
+  }
+}
+
+
+console.log(validator.isEmail("test@gmail.com")); 
+console.log(validator.isEmail("notanemail"));
+console.log(validator.isPhone("9876543210"));
+console.log(validator.isPhone("123")); 
+console.log(validator.isEmpty("   ")); 
+console.log(validator.isEmpty("hi"));
+
 
 // --------------------
 //  TODO D2 — Passing functions as arguments (Callbacks):
@@ -258,6 +291,16 @@ console.log("\n=== SECTION D: First-Class Functions ===");
 // --------------------
 
 // your code here...
+
+function applyOperation(a, b, operation){
+  return operation(a, b)
+
+}
+
+console.log(applyOperation(10, 5, (a, b) => a + b));
+console.log(applyOperation(10, 5, (a, b) => a - b)); 
+console.log(applyOperation(10, 5, (a, b) => a * b)); 
+console.log(applyOperation(10, 5, (a, b) => a / b));
 
 // --------------------
 //  TODO D3 — Array of functions:
@@ -277,6 +320,22 @@ console.log("\n=== SECTION D: First-Class Functions ===");
 
 // your code here...
 
+const pipeline = [
+  (acc)=> acc.trim(),
+  (acc)=> acc.toLowerCase(),
+  (acc)=> acc.replaceAll(" ", "-"),
+  (acc)=> "www. "+ acc + " .com"
+]
+
+
+function runPipeline(input, fns){
+   fns.reduce((acc, fn)=>{
+    return fn(acc)
+   }, input)
+}
+ 
+
+console.log(runPipeline("  Hello World  ", pipeline));
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION E — Higher-Order Functions
 // ─────────────────────────────────────────────────────────────────────────────

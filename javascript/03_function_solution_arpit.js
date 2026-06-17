@@ -110,19 +110,19 @@ console.log("\n=== SECTION B: Parameters ===");
 // --------------------
 
 // your code here...
-function createProfile(name, role = "student", level = 1){
-return{
-  name:name,
-  role:role,
-  level:level
+function createProfile(name, role = "student", level = 1) {
+  return {
+    name: name,
+    role: role,
+    level: level,
+  };
 }
-};
 
 //common mistake to keep in mind is that do not use line break after return.
 
 console.log(createProfile("Ahmed"));
 console.log(createProfile("Sara", "instructor"));
-console.log(createProfile("Ali", "admin", 5))
+console.log(createProfile("Ali", "admin", 5));
 
 // --------------------
 //  TODO B2 — Rest Parameters:
@@ -137,10 +137,10 @@ console.log(createProfile("Ali", "admin", 5))
 
 // your code here...
 //all arguments are collected in an array in rest operator
-function average(...nums){
-  return nums.reduce((sum, num) => sum+num, 0); //reduce takes all elements of an array and reduce it to a single value
+function average(...nums) {
+  return nums.reduce((sum, num) => sum + num, 0); //reduce takes all elements of an array and reduce it to a single value
 }
-console.log(average(10, 20)); 
+console.log(average(10, 20));
 console.log(average(5, 10, 15, 20));
 console.log(average(100));
 // --------------------
@@ -157,9 +157,8 @@ console.log(average(100));
 
 // your code here...
 
-function buildSentence(verb, ...nouns){
-  return `I can ${verb} ${nouns.join(", ")}`
-  
+function buildSentence(verb, ...nouns) {
+  return `I can ${verb} ${nouns.join(", ")}`;
 }
 console.log(buildSentence("code", "React", "Node", "Express"));
 console.log(buildSentence("eat", "pizza", "pasta"));
@@ -180,7 +179,7 @@ const multiplyByTen = (n) => n * 10;
 console.log(multiplyByTen(5)); // should be 50
 
 //  Bug 2 — should return an object but throws a syntax error
-const makePoint = (x, y) => ({x, y});
+const makePoint = (x, y) => ({ x, y });
 
 console.log(makePoint(3, 4)); // should be { x: 3, y: 4 }
 
@@ -206,24 +205,21 @@ console.log(sq(6)); // should be 36
 
 // your code here...
 
-function divide(a, b){
+function divide(a, b) {
+  if (typeof a !== "number" || typeof b !== "number") {
+    return "non-numeric";
+  }
 
-if(typeof a !== "number" || typeof b !== "number"){
-  return "non-numeric"
-}
-
-if(b===0){
-  return "division by zero"
-}else{
-  return (a /b).toFixed(4)
-}
-
+  if (b === 0) {
+    return "division by zero";
+  } else {
+    return (a / b).toFixed(4);
+  }
 }
 console.log(divide(10, 2));
 console.log(divide(10, 0));
-console.log(divide("a", 2)); 
+console.log(divide("a", 2));
 console.log(divide(22, 7));
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION D — First-Class Functions & Callbacks
@@ -248,36 +244,34 @@ console.log("\n=== SECTION D: First-Class Functions ===");
 
 // your code here...
 const validator = {
-  isEmail(emailAddress){
-       if(emailAddress.includes("@") && emailAddress.includes(".")){
-        return true;
-       }
-       return false;
-  },
-
-  isPhone(number){
-      if(/^\d{10}$/.test(number)){
-       return true;
-      }
-      return false;
-  },
-
-  isEmpty(string){
-    if(string.trim() ===""){
+  isEmail(emailAddress) {
+    if (emailAddress.includes("@") && emailAddress.includes(".")) {
       return true;
     }
     return false;
-  }
-}
+  },
 
+  isPhone(number) {
+    if (/^\d{10}$/.test(number)) {
+      return true;
+    }
+    return false;
+  },
 
-console.log(validator.isEmail("test@gmail.com")); 
+  isEmpty(string) {
+    if (string.trim() === "") {
+      return true;
+    }
+    return false;
+  },
+};
+
+console.log(validator.isEmail("test@gmail.com"));
 console.log(validator.isEmail("notanemail"));
 console.log(validator.isPhone("9876543210"));
-console.log(validator.isPhone("123")); 
-console.log(validator.isEmpty("   ")); 
+console.log(validator.isPhone("123"));
+console.log(validator.isEmpty("   "));
 console.log(validator.isEmpty("hi"));
-
 
 // --------------------
 //  TODO D2 — Passing functions as arguments (Callbacks):
@@ -292,14 +286,13 @@ console.log(validator.isEmpty("hi"));
 
 // your code here...
 
-function applyOperation(a, b, operation){
-  return operation(a, b)
-
+function applyOperation(a, b, operation) {
+  return operation(a, b);
 }
 
 console.log(applyOperation(10, 5, (a, b) => a + b));
-console.log(applyOperation(10, 5, (a, b) => a - b)); 
-console.log(applyOperation(10, 5, (a, b) => a * b)); 
+console.log(applyOperation(10, 5, (a, b) => a - b));
+console.log(applyOperation(10, 5, (a, b) => a * b));
 console.log(applyOperation(10, 5, (a, b) => a / b));
 
 // --------------------
@@ -321,19 +314,17 @@ console.log(applyOperation(10, 5, (a, b) => a / b));
 // your code here...
 
 const pipeline = [
-  (acc)=> acc.trim(),
-  (acc)=> acc.toLowerCase(),
-  (acc)=> acc.replaceAll(" ", "-"),
-  (acc)=> "www. "+ acc + " .com"
-]
+  (str) => str.trim(),
+  (str) => str.toLowerCase(),
+  (str) => str.replaceAll(" ", "-"),
+  (str) => "www." + str + ".com",
+];
 
-
-function runPipeline(input, fns){
-   fns.reduce((acc, fn)=>{
-    return fn(acc)
-   }, input)
+function runPipeline(input, fns) {
+  return fns.reduce((acc, fn) => {
+    return fn(acc);
+  }, input);
 }
- 
 
 console.log(runPipeline("  Hello World  ", pipeline));
 // ─────────────────────────────────────────────────────────────────────────────
@@ -358,6 +349,18 @@ console.log("\n=== SECTION E: Higher-Order Functions ===");
 
 // your code here...
 
+function makeGreeter(greeting) {
+  return function (name) {
+    return `${greeting}, ${name}`;
+  };
+}
+
+const sayHello = makeGreeter("Hello");
+const sayNamaste = makeGreeter("Namaste");
+
+console.log(sayHello("Ahmed"));
+console.log(sayNamaste("Priya"));
+console.log(sayHello("Sara"));
 // --------------------
 //  TODO E2 — Function that takes a function:
 //  Write a HOF called repeat(fn, times) that calls fn exactly
@@ -373,6 +376,18 @@ console.log("\n=== SECTION E: Higher-Order Functions ===");
 // --------------------
 
 // your code here...
+
+function repeat(fn, times) {
+  const array = [];
+  for (i = 0; i < times; i++) {
+    const valueAfterEachIteration = fn(i);
+    array.push(valueAfterEachIteration);
+  }
+  return array;
+}
+
+console.log(repeat(() => Math.floor(Math.random() * 10), 5));
+console.log(repeat((n) => n * 2, 4));
 
 // --------------------
 //  TODO E3 — withLogging HOF:
@@ -397,6 +412,18 @@ console.log("\n=== SECTION E: Higher-Order Functions ===");
 // --------------------
 
 // your code here...
+
+function withLogging(fn) {
+  return function (...args) {
+    console.log(`Calling ${fn.name} with arg: ${args}`);
+    const callingOriginalFunction = fn(...args);
+    console.log(`result: ${callingOriginalFunction}`);
+    return callingOriginalFunction;
+  };
+}
+const add = (a, b) => a + b; // arrow function
+const loggedAdd = withLogging(add);
+loggedAdd(3, 7);
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION F — Closures
@@ -425,6 +452,49 @@ console.log("\n=== SECTION F: Closures ===");
 
 // your code here...
 
+const account = makeBank();
+
+function makeBank() {
+  let balance = 0;
+
+  return {
+    deposit(amount) {
+      if (typeof amount === "number" && amount >= 0) {
+        balance += amount;
+        console.log(
+          `Congratulations! You have successfully deposited the amount ${amount}`,
+        );
+      } else {
+        console.log(`Please enter valid Amount`);
+      }
+    },
+    withdraw(amount) {
+      if (typeof amount === "number" && amount > 0) {
+        if (amount <= balance) {
+          balance -= amount;
+          console.log(`Congratulations! You have successfully withdrawn the amount ${amount}`);
+          console.log(`Amount left: ${balance}`);
+        }else{
+          console.log(`Insufficient balance ${balance}`)
+        };
+      } else{
+        console.log(`Enter Valid Amount`)
+      }
+    },
+    getBalance() {
+      return balance;
+    },
+  };
+}
+
+account.deposit(500);
+account.deposit(200);
+console.log(account.getBalance());
+account.withdraw(150);
+account.withdraw(150);
+console.log(account.getBalance());
+account.withdraw(1000); 
+console.log(account.getBalance());
 // --------------------
 //  TODO F2 — Closure for Configuration:
 //  Write a function called createTaxCalculator(taxRate) that

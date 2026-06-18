@@ -510,6 +510,19 @@ console.log(account.getBalance());
 // --------------------
 
 // your code here...
+function createTaxCalculator(taxRate){
+  let price;
+  return function(price){
+    const calculatedTax = `${price+(price*taxRate*100)/100}`
+    return calculatedTax
+  }
+}
+
+const calcGST  = createTaxCalculator(0.18);
+const calcVAT  = createTaxCalculator(0.05);
+console.log(calcGST(1000));
+console.log(calcGST(500));
+console.log(calcVAT(1000));
 
 // --------------------
 //  TODO F3 — The Classic Loop Bug:
@@ -525,9 +538,20 @@ console.log(account.getBalance());
 
 // Fix 1:
 // your code here...
+for (let i = 0; i < 3; i++) {
+   setTimeout(() => console.log(i), 100);
+  }
+
 
 // Fix 2 (IIFE):
 // your code here...
+for (var i = 0; i < 3; i++) {
+   (function(j){
+    setTimeout(() => {
+      console.log(j)
+    }, 100);
+   }(i));
+  }
 
 // --------------------
 //  TODO F4 — Memoization:
@@ -550,6 +574,22 @@ console.log(account.getBalance());
 
 // your code here...
 
+function memoize(fn){
+  const cache ={};
+  return function(number){
+
+    if(!Object.hasOwn(cache, number)){
+      cache[number] = fn(number);
+      return cache[number];
+}else{
+  console.log("cache hit")
+  return cache[number];
+  
+}
+    
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION G — Pure Functions & Side Effects
 // ─────────────────────────────────────────────────────────────────────────────
@@ -557,32 +597,59 @@ console.log(account.getBalance());
 console.log("\n=== SECTION G: Pure vs Impure ===");
 
 // --------------------
+/* Pure Function
+      ↑
+      |
+No Side Effects
+      +
+Same Input → Same Output
+*/
+
+/* Impure Function
+      ↑
+      |
+Has Side Effects
+      OR
+Depends on external state
+      OR
+Produces different outputs for same inputs
+*/
+
 //  TODO G1 — Classify each function as PURE or IMPURE and explain why.
 //  Write your answer as a comment next to each.
 
 let discount = 10;
 
 const fn1 = (price) => price - discount;
-// Pure or Impure? Why? ___________
+// Pure or Impure? Why? Pure function because for each similar value of price we will get similar results everytime.
 
 const fn2 = (price, disc) => price - disc;
-// Pure or Impure? Why? ___________
+// Pure or Impure? Why? Pure function because for every similar value of price and disc we will get similar result
 
 const fn3 = (arr) => arr.push(99);
-// Pure or Impure? Why? ___________
+// Pure or Impure? Why?Side effect, as everytime it will push, the array changes
 
 const fn4 = (arr) => [...arr, 99];
-// Pure or Impure? Why? ___________
+// Pure or Impure? Why? Pure 
 
 const fn5 = () => new Date().toISOString();
-// Pure or Impure? Why? ___________
+// Pure or Impure? Why? Impure, because everytime it will different result
 // --------------------
 
 // --------------------
 //  TODO G2 — Refactor to pure:
 //  The function below is impure. Rewrite it as a pure function
 //  that returns a new object instead of mutating the original.
-//
+/*
+Create copy
+↓
+Update copy
+↓
+Return copy
+↓
+Original untouched
+*/
+
 //  const originalUser = { name: "Ali", score: 50 };
 
 function addBonus(user, bonus) {
@@ -593,11 +660,17 @@ function addBonus(user, bonus) {
 //  Rewrite addBonusPure(user, bonus) here:
 // your code here...
 
+function addBonus(user, bonus){
+  const copy = {...user} // created copy
+  copy.scor+=bonus; //update copy
+  return copy //returned copy
+}
+
 //  Test:
-//  const originalUser = { name: "Ali", score: 50 };
-//  const updatedUser = addBonusPure(originalUser, 20);
-//  console.log(originalUser.score);   // 50  — unchanged
-//  console.log(updatedUser.score);    // 70  — new object
+ const originalUser = { name: "Ali", score: 50 };
+ const updatedUser = addBonus(originalUser, 20);
+ console.log(originalUser.score);   // 50  — unchanged
+ console.log(updatedUser.score);    // 70  — new object
 // --------------------
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -612,42 +685,42 @@ console.log("\n=== SECTION H: Bonus Challenge ===");
 //  Write a function called createApp() that returns an object with:
 //    use(fn)       — registers a middleware function
 //    run(request)  — runs all middleware in order, passing the request through
-//
+
 //  Each middleware function has the signature: (req, next) => void
 //  It should modify req and call next() to pass control to the next middleware.
 //  If a middleware doesn't call next(), the pipeline stops.
 //
 //  Example:
 //
-//  const app = createApp();
-//
-//  app.use((req, next) => {
-//    req.timestamp = new Date().toISOString();
-//    console.log("Middleware 1: timestamp added");
-//    next();
-//  });
-//
-//  app.use((req, next) => {
-//    req.user = "Ahmed";
-//    console.log("Middleware 2: user attached");
-//    next();
-//  });
-//
-//  app.use((req, next) => {
-//    if (!req.user) {
-//      console.log("Middleware 3: blocked — no user");
-//      return;   // does NOT call next — pipeline stops
-//    }
-//    console.log("Middleware 3: access granted");
-//    next();
-//  });
-//
-//  app.use((req, next) => {
-//    console.log("Middleware 4: final handler");
-//    console.log("Request:", req);
-//  });
-//
-//  app.run({ method: "GET", path: "/dashboard" });
+ const app = createApp();
+
+ app.use((req, next) => {
+   req.timestamp = new Date().toISOString();
+   console.log("Middleware 1: timestamp added");
+   next();
+ });
+
+ app.use((req, next) => {
+   req.user = "Ahmed";
+   console.log("Middleware 2: user attached");
+   next();
+ });
+
+ app.use((req, next) => {
+   if (!req.user) {
+     console.log("Middleware 3: blocked — no user");
+     return;   // does NOT call next — pipeline stops
+   }
+   console.log("Middleware 3: access granted");
+   next();
+ });
+
+ app.use((req, next) => {
+   console.log("Middleware 4: final handler");
+   console.log("Request:", req);
+ });
+
+ app.run({ method: "GET", path: "/dashboard" });
 //
 //  Expected output:
 //  Middleware 1: timestamp added
@@ -661,22 +734,48 @@ console.log("\n=== SECTION H: Bonus Challenge ===");
 // --------------------
 
 // your code here...
+function createApp(){
+  const middleWares =[]
+
+  return {
+    use(fn){
+      middleWares.push(fn)
+    },
+    run(req){
+    
+      function execute(index){
+
+        if(index >= middleWares.length){
+          return;
+        }
+
+        const middleware = middleWares[index];
+
+        const next=()=>{
+          execute(index+1)
+        };
+        middleware(req, next)
+      }
+      execute(0);
+    }
+  };
+}
 
 // ==========================================================================
 //  END OF EXERCISE 03
 //
 //  ✅ CHECKLIST before moving to Exercise 04:
-//  [ ] I can write functions 3 ways (declaration, expression, arrow)
-//  [ ] I understand hoisting difference between declaration and expression
-//  [ ] I know when arrow functions lose "this" — and why
-//  [ ] I can use default and rest parameters confidently
-//  [ ] I understand why arrow braces need explicit return
-//  [ ] I can pass functions as arguments (callbacks)
-//  [ ] I can write HOFs that take AND return functions
-//  [ ] I understand closures and private state
-//  [ ] I can fix the var-in-loop closure bug
-//  [ ] I can identify pure vs impure functions
-//  [ ] Bonus middleware challenge done
+//  ✅I can write functions 3 ways (declaration, expression, arrow)
+//  ✅ I understand hoisting difference between declaration and expression
+//  ✅ I know when arrow functions lose "this" — and why
+//  ✅ I can use default and rest parameters confidently
+//  ✅ I understand why arrow braces need explicit return
+//  ✅ I can pass functions as arguments (callbacks)
+//  ✅ I can write HOFs that take AND return functions
+//  ✅ I understand closures and private state
+//  ✅ I can fix the var-in-loop closure bug
+//  ✅ I can identify pure vs impure functions
+//  ✅ Bonus middleware challenge done
 //
 //  NEXT: Exercise 04 → Arrays & Objects (destructuring, spread, methods)
 // ==========================================================================

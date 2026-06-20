@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS-04 — Objects & Modern JS</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a; --surface: #13162a; --card: #1a1e35;
+    --border: rgba(99,120,255,0.18); --accent: #6378ff;
+    --accent2: #f7c948; --accent3: #3de8b0;
+    --text: #e8eaf6; --muted: #8b8fa8;
+    --tag-bg: rgba(99,120,255,0.12); --tag-text: #9aaeff;
+    --yellow: #f7c948; --green: #3de8b0; --red: #ff6b8a;
+    --code-bg: #0a0c18; --radius: 10px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+
+  .hero{background:linear-gradient(135deg,#0d0f1a,#141830,#0d1228);border-bottom:1px solid var(--border);padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'{ }';position:absolute;font-size:14rem;font-weight:700;color:rgba(99,120,255,0.04);top:-1rem;left:50%;transform:translateX(-50%);font-family:'Fira Code',monospace;pointer-events:none;white-space:nowrap;}
+  .hero h1{font-size:2.4rem;font-weight:700;background:linear-gradient(135deg,#fff,#a8b4ff,#3de8b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+  .hero p{color:var(--muted);font-size:0.95rem;font-weight:300;}
+  .badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;}
+  .badge{background:var(--tag-bg);color:var(--tag-text);border:1px solid rgba(99,120,255,0.25);padding:4px 12px;border-radius:20px;font-size:0.78rem;font-family:'Fira Code',monospace;}
+
+  .container{max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+  .section{margin-bottom:2.5rem;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:1.2rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
+  .section-num{font-family:'Fira Code',monospace;font-size:.75rem;color:var(--accent);background:var(--tag-bg);border:1px solid rgba(99,120,255,.25);padding:3px 8px;border-radius:4px;}
+  .section-header h2{font-size:1.25rem;font-weight:600;color:#fff;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.4rem;margin-bottom:1rem;}
+  .card h3{font-size:.95rem;font-weight:600;color:var(--accent2);margin-bottom:.6rem;display:flex;align-items:center;gap:8px;}
+  .card h3 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);flex-shrink:0;}
+  .card p,.card li{color:#c5c9de;font-size:.88rem;line-height:1.75;}
+  .card ul{padding-left:1.2rem;}
+  .card li{margin-bottom:.3rem;}
+
+  code{font-family:'Fira Code',monospace;font-size:.82rem;background:var(--code-bg);color:var(--accent3);padding:2px 6px;border-radius:4px;border:1px solid rgba(61,232,176,.15);}
+  pre{background:var(--code-bg);border:1px solid rgba(99,120,255,.2);border-radius:8px;padding:1.1rem 1.2rem;overflow-x:auto;margin:.75rem 0;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.7;}
+  .kw{color:#ff79c6;} .fn{color:#6cb4ff;} .str{color:#f7c948;} .cmt{color:#555e8a;font-style:italic;} .num{color:#3de8b0;} .var{color:#e8eaf6;} .op{color:#ff6b8a;}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+
+  .highlight-box{border-left:3px solid var(--accent);background:rgba(99,120,255,.06);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1rem 0;}
+  .highlight-box.yellow{border-color:var(--yellow);background:rgba(247,201,72,.06);}
+  .highlight-box.green{border-color:var(--green);background:rgba(61,232,176,.06);}
+  .highlight-box.red{border-color:var(--red);background:rgba(255,107,138,.06);}
+  .highlight-box p{font-size:.88rem;color:#c5c9de;}
+  .highlight-box strong{color:#fff;font-weight:600;}
+
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .vs-col{padding:1rem 1.1rem;}
+  .vs-col:first-child{border-right:1px solid var(--border);background:rgba(255,107,138,.05);}
+  .vs-col:last-child{background:rgba(61,232,176,.05);}
+  .vs-col h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:.6rem;}
+  .vs-col:first-child h4{color:var(--red);}
+  .vs-col:last-child h4{color:var(--green);}
+  .vs-col ul{padding-left:1rem;list-style:none;}
+  .vs-col li{font-size:.82rem;color:#c5c9de;padding:3px 0;}
+  .vs-col li::before{content:'→ ';color:var(--muted);}
+
+  .type-table{width:100%;border-collapse:collapse;font-size:.83rem;margin:.5rem 0;}
+  .type-table th{color:var(--muted);font-weight:500;text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;}
+  .type-table td{padding:7px 10px;border-bottom:1px solid rgba(99,120,255,.08);color:#c5c9de;}
+  .type-table tr:last-child td{border-bottom:none;}
+  .type-table .tag{color:var(--accent3);font-family:'Fira Code',monospace;}
+  .type-table .note{color:var(--muted);font-size:.78rem;}
+
+  .toc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:2rem;}
+  .toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.8rem;}
+  .toc ol{padding-left:1.2rem;}
+  .toc li{font-size:.85rem;color:var(--tag-text);padding:3px 0;}
+
+  .method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-top:.75rem;}
+  .method-card{background:rgba(99,120,255,.06);border:1px solid rgba(99,120,255,.18);border-radius:8px;padding:.8rem 1rem;}
+  .method-card .name{font-family:'Fira Code',monospace;font-size:.82rem;color:var(--accent3);font-weight:500;margin-bottom:.3rem;}
+  .method-card .desc{font-size:.78rem;color:var(--muted);line-height:1.5;}
+  .method-card .returns{font-size:.72rem;color:var(--accent2);margin-top:.3rem;font-family:'Fira Code',monospace;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>JS-04 — Objects & Modern JS</h1>
+  <p>The final JS foundation before Node.js — master objects and you master MERN data flow</p>
+  <div class="badge-row">
+    <span class="badge">MERN Stack — Module 4</span>
+    <span class="badge">Objects · call/bind/apply · Destructuring · Spread · Class · JSON</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li>Objects Deep Dive — Creation, Methods, Shorthand</li>
+      <li>this in Objects — and Why It Breaks</li>
+      <li>call, bind, apply — Taking Full Control of this</li>
+      <li>Destructuring — Objects & Arrays</li>
+      <li>Spread & Rest Operator</li>
+      <li>Prototypes & the class Keyword</li>
+      <li>Built-in Object Methods</li>
+      <li>JSON — stringify, parse & Real API Patterns</li>
+    </ol>
+  </div>
+
+  <!-- ── SECTION 1 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Objects Deep Dive — Creation, Methods, Shorthand</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>What Is an Object?</h3>
+      <p>An object is a collection of <strong>key-value pairs</strong> where values can be any data type — including functions (called methods). Objects are the primary data structure in JavaScript and the shape of almost every piece of data you'll work with in MERN: a MongoDB document, an Express request, a React component's props — all objects.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Three Creation Patterns</h3>
+      <pre><span class="cmt">// 1. Object Literal — most common, use this always</span>
+<span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> {
+  <span class="var">name</span>: <span class="str">"Ahmed"</span>,
+  <span class="var">age</span>: <span class="num">28</span>,
+  <span class="var">active</span>: <span class="kw">true</span>,
+  <span class="fn">greet</span>() {                          <span class="cmt">// method shorthand (ES6)</span>
+    <span class="kw">return</span> <span class="str">`Hello, I am <span class="var">${this.name}</span>`</span>;
+  }
+};
+
+<span class="cmt">// 2. Object.create() — sets prototype explicitly</span>
+<span class="kw">const</span> <span class="var">baseUser</span> <span class="op">=</span> { <span class="fn">greet</span>() { <span class="kw">return</span> <span class="str">"Hello"</span>; } };
+<span class="kw">const</span> <span class="var">admin</span> <span class="op">=</span> <span class="var">Object</span>.<span class="fn">create</span>(<span class="var">baseUser</span>);
+<span class="var">admin</span>.<span class="var">role</span> <span class="op">=</span> <span class="str">"admin"</span>;
+
+<span class="cmt">// 3. Constructor Function / Factory (covered in Section 06)</span>
+<span class="kw">function</span> <span class="fn">createUser</span>(<span class="var">name</span>, <span class="var">age</span>) {
+  <span class="kw">return</span> { <span class="var">name</span>, <span class="var">age</span> };   <span class="cmt">// shorthand — name:name, age:age</span>
+}</pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Property Shorthand, Computed Keys & Methods</h3>
+      <pre><span class="kw">const</span> <span class="var">name</span> <span class="op">=</span> <span class="str">"Sara"</span>;
+<span class="kw">const</span> <span class="var">age</span>  <span class="op">=</span> <span class="num">25</span>;
+<span class="kw">const</span> <span class="var">key</span>  <span class="op">=</span> <span class="str">"role"</span>;
+
+<span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> {
+  <span class="var">name</span>,                     <span class="cmt">// shorthand for name: name</span>
+  <span class="var">age</span>,                      <span class="cmt">// shorthand for age: age</span>
+  [<span class="var">key</span>]: <span class="str">"admin"</span>,           <span class="cmt">// computed key → role: "admin"</span>
+  <span class="fn">greet</span>() {                 <span class="cmt">// method shorthand</span>
+    <span class="kw">return</span> <span class="str">`Hi <span class="var">${this.name}</span>`</span>;
+  },
+  <span class="fn">greetArrow</span>: () <span class="op">=></span> <span class="str">"Hi"</span>    <span class="cmt">// arrow — no own this! (covered next)</span>
+};
+
+<span class="cmt">// Dot vs Bracket notation</span>
+<span class="var">user</span>.<span class="var">name</span>;           <span class="cmt">// "Sara" — use when key is known</span>
+<span class="var">user</span>[<span class="str">"name"</span>];        <span class="cmt">// "Sara" — same result</span>
+<span class="var">user</span>[<span class="var">key</span>];           <span class="cmt">// "admin" — use when key is a variable</span>
+
+<span class="cmt">// Optional chaining — safe access on deep/uncertain objects</span>
+<span class="var">user</span>?.<span class="var">address</span>?.<span class="var">city</span>;  <span class="cmt">// undefined — no error even if address missing</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Accessing, Adding, Updating & Deleting Properties</h3>
+      <pre><span class="kw">const</span> <span class="var">car</span> <span class="op">=</span> { <span class="var">brand</span>: <span class="str">"Toyota"</span>, <span class="var">year</span>: <span class="num">2020</span> };
+
+<span class="var">car</span>.<span class="var">color</span> <span class="op">=</span> <span class="str">"red"</span>;       <span class="cmt">// add new property</span>
+<span class="var">car</span>.<span class="var">year</span>  <span class="op">=</span> <span class="num">2023</span>;         <span class="cmt">// update existing</span>
+<span class="kw">delete</span> <span class="var">car</span>.<span class="var">color</span>;         <span class="cmt">// remove property</span>
+
+<span class="cmt">// Check if key exists</span>
+<span class="str">"brand"</span> <span class="kw">in</span> <span class="var">car</span>;           <span class="cmt">// true</span>
+<span class="var">car</span>.<span class="fn">hasOwnProperty</span>(<span class="str">"year"</span>); <span class="cmt">// true</span></pre>
+    </div>
+    <div class="highlight-box yellow">
+      <p><strong>MERN context:</strong> Every MongoDB document is a JS object. <code>req.body</code>, <code>req.params</code>, <code>req.query</code> in Express are all objects. React component props are objects. You'll be reading and writing object properties hundreds of times a day.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>this in Objects — and Why It Breaks</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>this Inside a Method — Works Fine</h3>
+      <pre><span class="kw">const</span> <span class="var">counter</span> <span class="op">=</span> {
+  <span class="var">count</span>: <span class="num">0</span>,
+  <span class="fn">increment</span>() {
+    <span class="kw">this</span>.<span class="var">count</span><span class="op">++</span>;          <span class="cmt">// this = counter ✅</span>
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="var">count</span>;
+  }
+};
+<span class="var">counter</span>.<span class="fn">increment</span>();   <span class="cmt">// 1 — this correctly points to counter</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Three Ways this Breaks</h3>
+      <pre><span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> {
+  <span class="var">name</span>: <span class="str">"Ali"</span>,
+  <span class="fn">greet</span>() { <span class="kw">return</span> <span class="kw">this</span>.<span class="var">name</span>; }
+};
+
+<span class="cmt">// Break 1 — method detached from object</span>
+<span class="kw">const</span> <span class="var">fn</span> <span class="op">=</span> <span class="var">user</span>.<span class="var">greet</span>;
+<span class="fn">fn</span>();                    <span class="cmt">// undefined — this is now global/undefined</span>
+
+<span class="cmt">// Break 2 — passed as callback</span>
+<span class="fn">setTimeout</span>(<span class="var">user</span>.<span class="var">greet</span>, <span class="num">100</span>);  <span class="cmt">// undefined — setTimeout detaches it</span>
+
+<span class="cmt">// Break 3 — arrow function as method (no own this)</span>
+<span class="kw">const</span> <span class="var">obj</span> <span class="op">=</span> {
+  <span class="var">name</span>: <span class="str">"Sara"</span>,
+  <span class="fn">greet</span>: () <span class="op">=></span> <span class="kw">this</span>.<span class="var">name</span>  <span class="cmt">// this = global scope, NOT obj</span>
+};
+<span class="var">obj</span>.<span class="fn">greet</span>();              <span class="cmt">// undefined</span></pre>
+    </div>
+    <div class="highlight-box red">
+      <p><strong>Rule:</strong> Always use regular function syntax <code>method() {}</code> for object methods that need <code>this</code>. Arrow functions do not have their own <code>this</code> — never use them as object methods.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>call, bind, apply — Taking Full Control of this</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Problem They Solve</h3>
+      <p>All three methods let you <strong>manually set what <code>this</code> points to</strong> when calling a function. Think of them as "function borrowing" — you take a method from one object and use it in the context of another.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>call() — Invoke Immediately with Custom this</h3>
+      <pre><span class="kw">function</span> <span class="fn">introduce</span>(<span class="var">city</span>, <span class="var">country</span>) {
+  <span class="kw">return</span> <span class="str">`I am <span class="var">${this.name}</span> from <span class="var">${city}</span>, <span class="var">${country}</span>`</span>;
+}
+
+<span class="kw">const</span> <span class="var">person1</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ahmed"</span> };
+<span class="kw">const</span> <span class="var">person2</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Sara"</span> };
+
+<span class="cmt">// call(thisArg, arg1, arg2, ...)</span>
+<span class="var">introduce</span>.<span class="fn">call</span>(<span class="var">person1</span>, <span class="str">"Delhi"</span>, <span class="str">"India"</span>);
+<span class="cmt">// "I am Ahmed from Delhi, India"</span>
+
+<span class="var">introduce</span>.<span class="fn">call</span>(<span class="var">person2</span>, <span class="str">"Dubai"</span>, <span class="str">"UAE"</span>);
+<span class="cmt">// "I am Sara from Dubai, UAE"
+
+// Real use case — borrowing Array methods for array-like objects
+// (NodeList, arguments object — not real arrays)</span>
+<span class="kw">function</span> <span class="fn">showArgs</span>() {
+  <span class="kw">const</span> <span class="var">arr</span> <span class="op">=</span> <span class="var">Array</span>.<span class="var">prototype</span>.<span class="var">slice</span>.<span class="fn">call</span>(<span class="var">arguments</span>);
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">arr</span>);
+}
+<span class="fn">showArgs</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>);   <span class="cmt">// [1, 2, 3]</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>apply() — Same as call(), but Arguments as Array</h3>
+      <pre><span class="cmt">// apply(thisArg, [arg1, arg2, ...])  ← array instead of spread</span>
+<span class="var">introduce</span>.<span class="fn">apply</span>(<span class="var">person1</span>, [<span class="str">"Mumbai"</span>, <span class="str">"India"</span>]);
+<span class="cmt">// "I am Ahmed from Mumbai, India"
+
+// Classic use — Math.max on an array (pre-spread syntax)</span>
+<span class="kw">const</span> <span class="var">nums</span> <span class="op">=</span> [<span class="num">3</span>, <span class="num">7</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">2</span>];
+<span class="var">Math</span>.<span class="fn">max</span>.<span class="fn">apply</span>(<span class="kw">null</span>, <span class="var">nums</span>);   <span class="cmt">// 9  (null = no this needed)</span>
+<span class="cmt">// Modern equivalent: Math.max(...nums)</span>
+
+<span class="cmt">// Memory trick — A for Apply, A for Array</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>bind() — Returns a NEW Function with Locked this</h3>
+      <pre><span class="kw">function</span> <span class="fn">greet</span>(<span class="var">greeting</span>) {
+  <span class="kw">return</span> <span class="str">`<span class="var">${greeting}</span>, I am <span class="var">${this.name}</span>`</span>;
+}
+
+<span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Priya"</span> };
+
+<span class="cmt">// bind does NOT call the function — returns a new one</span>
+<span class="kw">const</span> <span class="var">boundGreet</span> <span class="op">=</span> <span class="var">greet</span>.<span class="fn">bind</span>(<span class="var">user</span>);
+<span class="fn">boundGreet</span>(<span class="str">"Hello"</span>);     <span class="cmt">// "Hello, I am Priya"</span>
+<span class="fn">boundGreet</span>(<span class="str">"Namaste"</span>);   <span class="cmt">// "Namaste, I am Priya"</span>
+
+<span class="cmt">// bind with pre-set arguments (partial application)</span>
+<span class="kw">const</span> <span class="var">helloGreet</span> <span class="op">=</span> <span class="var">greet</span>.<span class="fn">bind</span>(<span class="var">user</span>, <span class="str">"Hello"</span>);
+<span class="fn">helloGreet</span>();             <span class="cmt">// "Hello, I am Priya"</span>
+
+<span class="cmt">// Fixing the broken callback from Section 02</span>
+<span class="fn">setTimeout</span>(<span class="var">user</span>.<span class="var">greet</span>.<span class="fn">bind</span>(<span class="var">user</span>), <span class="num">100</span>); <span class="cmt">// ✅ this stays as user</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Quick Comparison</h3>
+      <table class="type-table" style="background:var(--code-bg);border-radius:8px;overflow:hidden;border:1px solid rgba(99,120,255,.2);">
+        <thead><tr>
+          <th>Method</th><th>Calls immediately?</th><th>Arguments</th><th>Returns</th><th>Use when</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><code>call</code></td><td class="tag">✅ Yes</td><td class="note">Comma-separated</td><td class="note">Result of fn</td><td class="note">Borrow method once</td></tr>
+          <tr><td><code>apply</code></td><td class="tag">✅ Yes</td><td class="note">Array</td><td class="note">Result of fn</td><td class="note">Args already in array</td></tr>
+          <tr><td><code>bind</code></td><td class="tag" style="color:var(--red)">❌ No</td><td class="note">Comma-separated</td><td class="note">New function</td><td class="note">Fix this for later use</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="highlight-box green">
+      <p><strong>MERN context:</strong> In Express, event listeners and middleware sometimes lose <code>this</code> context. In React class components, <code>this.handleClick = this.handleClick.bind(this)</code> in the constructor was the standard pattern before hooks. Understanding <code>bind</code> makes you debug these instantly.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Destructuring — Objects & Arrays</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Object Destructuring</h3>
+      <pre><span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ahmed"</span>, <span class="var">age</span>: <span class="num">28</span>, <span class="var">city</span>: <span class="str">"Delhi"</span> };
+
+<span class="cmt">// Old way</span>
+<span class="kw">const</span> <span class="var">name</span> <span class="op">=</span> <span class="var">user</span>.<span class="var">name</span>;
+<span class="kw">const</span> <span class="var">age</span>  <span class="op">=</span> <span class="var">user</span>.<span class="var">age</span>;
+
+<span class="cmt">// Destructuring</span>
+<span class="kw">const</span> { <span class="var">name</span>, <span class="var">age</span>, <span class="var">city</span> } <span class="op">=</span> <span class="var">user</span>;
+
+<span class="cmt">// Rename while destructuring</span>
+<span class="kw">const</span> { <span class="var">name</span>: <span class="var">fullName</span>, <span class="var">age</span>: <span class="var">userAge</span> } <span class="op">=</span> <span class="var">user</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">fullName</span>);   <span class="cmt">// "Ahmed"</span>
+
+<span class="cmt">// Default values</span>
+<span class="kw">const</span> { <span class="var">name</span>, <span class="var">role</span> <span class="op">=</span> <span class="str">"viewer"</span> } <span class="op">=</span> <span class="var">user</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">role</span>);         <span class="cmt">// "viewer" (user has no role)</span>
+
+<span class="cmt">// Nested destructuring</span>
+<span class="kw">const</span> <span class="var">profile</span> <span class="op">=</span> { <span class="var">user</span>: { <span class="var">name</span>: <span class="str">"Sara"</span>, <span class="var">address</span>: { <span class="var">city</span>: <span class="str">"Mumbai"</span> } } };
+<span class="kw">const</span> { <span class="var">user</span>: { <span class="var">name</span>, <span class="var">address</span>: { <span class="var">city</span> } } } <span class="op">=</span> <span class="var">profile</span>;
+
+<span class="cmt">// In function parameters — most common pattern in MERN</span>
+<span class="kw">function</span> <span class="fn">createUser</span>({ <span class="var">name</span>, <span class="var">age</span>, <span class="var">role</span> <span class="op">=</span> <span class="str">"user"</span> }) {
+  <span class="kw">return</span> { <span class="var">name</span>, <span class="var">age</span>, <span class="var">role</span> };
+}
+<span class="fn">createUser</span>({ <span class="var">name</span>: <span class="str">"Ali"</span>, <span class="var">age</span>: <span class="num">30</span> });  <span class="cmt">// { name:"Ali", age:30, role:"user" }</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Array Destructuring</h3>
+      <pre><span class="kw">const</span> <span class="var">colors</span> <span class="op">=</span> [<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>];
+
+<span class="cmt">// Position-based (unlike objects which are name-based)</span>
+<span class="kw">const</span> [<span class="var">first</span>, <span class="var">second</span>, <span class="var">third</span>] <span class="op">=</span> <span class="var">colors</span>;
+
+<span class="cmt">// Skip elements with commas</span>
+<span class="kw">const</span> [<span class="var">primary</span>, , <span class="var">tertiary</span>] <span class="op">=</span> <span class="var">colors</span>;  <span class="cmt">// skip green</span>
+
+<span class="cmt">// Default values</span>
+<span class="kw">const</span> [<span class="var">a</span>, <span class="var">b</span>, <span class="var">c</span>, <span class="var">d</span> <span class="op">=</span> <span class="str">"yellow"</span>] <span class="op">=</span> <span class="var">colors</span>;
+
+<span class="cmt">// Swap variables — elegant trick</span>
+<span class="kw">let</span> <span class="var">x</span> <span class="op">=</span> <span class="num">1</span>, <span class="var">y</span> <span class="op">=</span> <span class="num">2</span>;
+[<span class="var">x</span>, <span class="var">y</span>] <span class="op">=</span> [<span class="var">y</span>, <span class="var">x</span>];   <span class="cmt">// x=2, y=1</span>
+
+<span class="cmt">// Rest in destructuring</span>
+<span class="kw">const</span> [<span class="var">head</span>, ...<span class="var">tail</span>] <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>];
+<span class="cmt">// head = 1, tail = [2,3,4]
+
+// React useState returns an array — this is why!</span>
+<span class="kw">const</span> [<span class="var">count</span>, <span class="var">setCount</span>] <span class="op">=</span> <span class="fn">useState</span>(<span class="num">0</span>);  <span class="cmt">// array destructuring</span></pre>
+    </div>
+    <div class="highlight-box yellow">
+      <p><strong>MERN context:</strong> In Express — <code>const { email, password } = req.body</code>. In Mongoose — <code>const { id } = req.params</code>. In React — <code>const { name, age } = props</code> and <code>const [state, setState] = useState()</code>. You'll destructure hundreds of times daily.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Spread & Rest Operator</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Spread — Expand an Iterable</h3>
+      <pre><span class="cmt">// Arrays — spread into another array or function call</span>
+<span class="kw">const</span> <span class="var">a</span> <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> <span class="var">b</span> <span class="op">=</span> [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>];
+<span class="kw">const</span> <span class="var">combined</span> <span class="op">=</span> [...<span class="var">a</span>, ...<span class="var">b</span>];          <span class="cmt">// [1,2,3,4,5,6]</span>
+<span class="kw">const</span> <span class="var">copy</span>     <span class="op">=</span> [...<span class="var">a</span>];               <span class="cmt">// shallow copy</span>
+
+<span class="var">Math</span>.<span class="fn">max</span>(...<span class="var">a</span>);                        <span class="cmt">// 3</span>
+
+<span class="cmt">// Objects — spread into another object</span>
+<span class="kw">const</span> <span class="var">defaults</span> <span class="op">=</span> { <span class="var">role</span>: <span class="str">"user"</span>, <span class="var">active</span>: <span class="kw">true</span> };
+<span class="kw">const</span> <span class="var">newUser</span>  <span class="op">=</span> { ...<span class="var">defaults</span>, <span class="var">name</span>: <span class="str">"Ali"</span> };
+<span class="cmt">// { role:"user", active:true, name:"Ali" }</span>
+
+<span class="cmt">// Override — later keys win</span>
+<span class="kw">const</span> <span class="var">updated</span> <span class="op">=</span> { ...<span class="var">defaults</span>, <span class="var">active</span>: <span class="kw">false</span> };
+<span class="cmt">// { role:"user", active:false }
+
+// Clone + modify pattern — used constantly in React state updates</span>
+<span class="kw">const</span> <span class="var">user</span>        <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Sara"</span>, <span class="var">age</span>: <span class="num">25</span>, <span class="var">city</span>: <span class="str">"Delhi"</span> };
+<span class="kw">const</span> <span class="var">updatedUser</span> <span class="op">=</span> { ...<span class="var">user</span>, <span class="var">age</span>: <span class="num">26</span> };  <span class="cmt">// changed age, rest intact</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Rest — Collect the Remainder</h3>
+      <pre><span class="cmt">// Rest in destructuring — collect what's left</span>
+<span class="kw">const</span> { <span class="var">name</span>, <span class="var">password</span>, ...<span class="var">safeData</span> } <span class="op">=</span> <span class="var">user</span>;
+<span class="cmt">// safeData = { age:25, city:"Delhi" } — password stripped out!</span>
+<span class="cmt">// This pattern is used in Node.js to remove sensitive fields before sending</span>
+
+<span class="kw">const</span> [<span class="var">first</span>, ...<span class="var">rest</span>] <span class="op">=</span> [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>];
+<span class="cmt">// first=10, rest=[20,30,40]</span>
+
+<span class="cmt">// Rest in function params — covered in Module 03</span>
+<span class="kw">const</span> <span class="var">sum</span> <span class="op">=</span> (...<span class="var">nums</span>) <span class="op">=></span> <span class="var">nums</span>.<span class="fn">reduce</span>((<span class="var">a</span>,<span class="var">b</span>) <span class="op">=></span> <span class="var">a</span><span class="op">+</span><span class="var">b</span>, <span class="num">0</span>);</pre>
+    </div>
+    <div class="vs-grid">
+      <div class="vs-col">
+        <h4>Spread ...</h4>
+        <ul>
+          <li>Expands/unpacks values outward</li>
+          <li>Used in assignments and calls</li>
+          <li>Creates shallow copies</li>
+          <li>Right side of <code>=</code> or in <code>()</code></li>
+        </ul>
+      </div>
+      <div class="vs-col">
+        <h4>Rest ...</h4>
+        <ul>
+          <li>Collects/gathers values inward</li>
+          <li>Used in destructuring & params</li>
+          <li>Must be last in the list</li>
+          <li>Left side of <code>=</code> or in params</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Prototypes & the class Keyword</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Prototype Chain — Quick Recap</h3>
+      <p>Every JS object has an internal <code>[[Prototype]]</code> link. When you access a property JS doesn't find on the object itself, it walks up the chain until it finds it or reaches <code>null</code>. This is why <code>[1,2,3].map()</code> works — <code>map</code> lives on <code>Array.prototype</code>, not on the array itself.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>ES6 class — Clean Syntax Over Prototypes</h3>
+      <pre><span class="kw">class</span> <span class="fn">User</span> {
+  <span class="cmt">// constructor runs when: new User(...)</span>
+  <span class="fn">constructor</span>(<span class="var">name</span>, <span class="var">email</span>, <span class="var">role</span> <span class="op">=</span> <span class="str">"user"</span>) {
+    <span class="kw">this</span>.<span class="var">name</span>  <span class="op">=</span> <span class="var">name</span>;
+    <span class="kw">this</span>.<span class="var">email</span> <span class="op">=</span> <span class="var">email</span>;
+    <span class="kw">this</span>.<span class="var">role</span>  <span class="op">=</span> <span class="var">role</span>;
+  }
+
+  <span class="cmt">// Instance method — available on each instance</span>
+  <span class="fn">greet</span>() {
+    <span class="kw">return</span> <span class="str">`Hi, I am <span class="var">${this.name}</span>`</span>;
+  }
+
+  <span class="cmt">// Static method — called on the class, not instance</span>
+  <span class="kw">static</span> <span class="fn">validate</span>(<span class="var">email</span>) {
+    <span class="kw">return</span> <span class="var">email</span>.<span class="fn">includes</span>(<span class="str">"@"</span>);
+  }
+}
+
+<span class="kw">const</span> <span class="var">u1</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">User</span>(<span class="str">"Ali"</span>, <span class="str">"ali@example.com"</span>);
+<span class="var">u1</span>.<span class="fn">greet</span>();              <span class="cmt">// "Hi, I am Ali"</span>
+<span class="var">User</span>.<span class="fn">validate</span>(<span class="str">"test@"</span>); <span class="cmt">// true</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Inheritance with extends</h3>
+      <pre><span class="kw">class</span> <span class="fn">Admin</span> <span class="kw">extends</span> <span class="fn">User</span> {
+  <span class="fn">constructor</span>(<span class="var">name</span>, <span class="var">email</span>, <span class="var">permissions</span>) {
+    <span class="kw">super</span>(<span class="var">name</span>, <span class="var">email</span>, <span class="str">"admin"</span>);  <span class="cmt">// call parent constructor</span>
+    <span class="kw">this</span>.<span class="var">permissions</span> <span class="op">=</span> <span class="var">permissions</span>;
+  }
+
+  <span class="fn">greet</span>() {
+    <span class="kw">return</span> <span class="str">`<span class="var">${super.greet()}</span> [ADMIN]`</span>;  <span class="cmt">// call parent method</span>
+  }
+}
+
+<span class="kw">const</span> <span class="var">admin</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">Admin</span>(<span class="str">"Sara"</span>, <span class="str">"sara@x.com"</span>, [<span class="str">"delete"</span>, <span class="str">"ban"</span>]);
+<span class="var">admin</span>.<span class="fn">greet</span>();   <span class="cmt">// "Hi, I am Sara [ADMIN]"</span>
+
+<span class="cmt">// instanceof checks</span>
+<span class="var">admin</span> <span class="kw">instanceof</span> <span class="fn">Admin</span>;  <span class="cmt">// true</span>
+<span class="var">admin</span> <span class="kw">instanceof</span> <span class="fn">User</span>;   <span class="cmt">// true  — Admin extends User</span></pre>
+    </div>
+    <div class="highlight-box yellow">
+      <p><strong>MERN context:</strong> Mongoose models are ES6 classes under the hood. When you write <code>const User = mongoose.model('User', schema)</code> and then <code>new User({...})</code> — that's class instantiation. Custom error classes in Express also use <code>extends Error</code>.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Built-in Object Methods</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Essential Six</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="name">Object.keys(obj)</div><div class="desc">Array of all own enumerable keys</div><div class="returns">returns → string[]</div></div>
+        <div class="method-card"><div class="name">Object.values(obj)</div><div class="desc">Array of all own enumerable values</div><div class="returns">returns → any[]</div></div>
+        <div class="method-card"><div class="name">Object.entries(obj)</div><div class="desc">Array of [key, value] pairs</div><div class="returns">returns → [string, any][]</div></div>
+        <div class="method-card"><div class="name">Object.assign(target, ...src)</div><div class="desc">Merge sources into target (mutates!)</div><div class="returns">returns → target</div></div>
+        <div class="method-card"><div class="name">Object.freeze(obj)</div><div class="desc">Prevents all property changes</div><div class="returns">returns → frozen obj</div></div>
+        <div class="method-card"><div class="name">Object.fromEntries(arr)</div><div class="desc">Convert [key,val] pairs → object</div><div class="returns">returns → object</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>In Practice</h3>
+      <pre><span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ali"</span>, <span class="var">age</span>: <span class="num">28</span>, <span class="var">city</span>: <span class="str">"Delhi"</span> };
+
+<span class="var">Object</span>.<span class="fn">keys</span>(<span class="var">user</span>);      <span class="cmt">// ["name", "age", "city"]</span>
+<span class="var">Object</span>.<span class="fn">values</span>(<span class="var">user</span>);    <span class="cmt">// ["Ali", 28, "Delhi"]</span>
+<span class="var">Object</span>.<span class="fn">entries</span>(<span class="var">user</span>);   <span class="cmt">// [["name","Ali"],["age",28],["city","Delhi"]]</span>
+
+<span class="cmt">// Loop over object — the modern way</span>
+<span class="kw">for</span> (<span class="kw">const</span> [<span class="var">key</span>, <span class="var">val</span>] <span class="kw">of</span> <span class="var">Object</span>.<span class="fn">entries</span>(<span class="var">user</span>)) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`<span class="var">${key}</span>: <span class="var">${val}</span>`</span>);
+}
+
+<span class="cmt">// Object.assign — merge (prefer spread for immutability)</span>
+<span class="kw">const</span> <span class="var">extra</span>   <span class="op">=</span> { <span class="var">role</span>: <span class="str">"admin"</span> };
+<span class="kw">const</span> <span class="var">merged</span>  <span class="op">=</span> <span class="var">Object</span>.<span class="fn">assign</span>({}, <span class="var">user</span>, <span class="var">extra</span>);  <span class="cmt">// new object</span>
+<span class="kw">const</span> <span class="var">merged2</span> <span class="op">=</span> { ...<span class="var">user</span>, ...<span class="var">extra</span> };            <span class="cmt">// cleaner equivalent</span>
+
+<span class="cmt">// Object.freeze — immutable object (config, constants)</span>
+<span class="kw">const</span> <span class="var">CONFIG</span> <span class="op">=</span> <span class="var">Object</span>.<span class="fn">freeze</span>({ <span class="var">PORT</span>: <span class="num">3000</span>, <span class="var">DB</span>: <span class="str">"mongodb"</span> });
+<span class="var">CONFIG</span>.<span class="var">PORT</span> <span class="op">=</span> <span class="num">8080</span>;   <span class="cmt">// silently fails in normal mode, throws in strict</span>
+
+<span class="cmt">// Object.fromEntries — reverse of entries</span>
+<span class="kw">const</span> <span class="var">doubled</span> <span class="op">=</span> <span class="var">Object</span>.<span class="fn">fromEntries</span>(
+  <span class="var">Object</span>.<span class="fn">entries</span>({ <span class="var">a</span>: <span class="num">1</span>, <span class="var">b</span>: <span class="num">2</span> }).<span class="fn">map</span>(([<span class="var">k</span>, <span class="var">v</span>]) <span class="op">=></span> [<span class="var">k</span>, <span class="var">v</span> <span class="op">*</span> <span class="num">2</span>])
+);
+<span class="cmt">// { a: 2, b: 4 }</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>JSON — stringify, parse & Real API Patterns</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>What is JSON?</h3>
+      <p>JSON (JavaScript Object Notation) is a <strong>text format</strong> for representing structured data. It looks like a JS object but has strict rules: keys must be double-quoted strings, no functions, no <code>undefined</code>, no comments. It is the universal data format for REST APIs.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>JSON.stringify & JSON.parse</h3>
+      <pre><span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> { <span class="var">name</span>: <span class="str">"Ahmed"</span>, <span class="var">age</span>: <span class="num">28</span>, <span class="var">active</span>: <span class="kw">true</span> };
+
+<span class="cmt">// Object → JSON string (for API response / localStorage)</span>
+<span class="kw">const</span> <span class="var">jsonStr</span> <span class="op">=</span> <span class="var">JSON</span>.<span class="fn">stringify</span>(<span class="var">user</span>);
+<span class="cmt">// '{"name":"Ahmed","age":28,"active":true}'</span>
+
+<span class="cmt">// Pretty print (for logging/debugging)</span>
+<span class="var">JSON</span>.<span class="fn">stringify</span>(<span class="var">user</span>, <span class="kw">null</span>, <span class="num">2</span>);
+<span class="cmt">// {
+//   "name": "Ahmed",
+//   "age": 28,
+//   "active": true
+// }</span>
+
+<span class="cmt">// JSON string → Object (when you receive API data)</span>
+<span class="kw">const</span> <span class="var">parsed</span> <span class="op">=</span> <span class="var">JSON</span>.<span class="fn">parse</span>(<span class="var">jsonStr</span>);
+<span class="var">parsed</span>.<span class="var">name</span>;   <span class="cmt">// "Ahmed"
+
+// Things JSON drops silently</span>
+<span class="kw">const</span> <span class="var">obj</span> <span class="op">=</span> { <span class="var">fn</span>: () <span class="op">=></span> {}, <span class="var">undef</span>: <span class="kw">undefined</span>, <span class="var">name</span>: <span class="str">"Ali"</span> };
+<span class="var">JSON</span>.<span class="fn">stringify</span>(<span class="var">obj</span>);   <span class="cmt">// '{"name":"Ali"}' — fn and undef vanish!</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Real MERN API Pattern</h3>
+      <pre><span class="cmt">// Express — sending JSON response</span>
+<span class="var">app</span>.<span class="fn">get</span>(<span class="str">"/user/:id"</span>, <span class="kw">async</span> (<span class="var">req</span>, <span class="var">res</span>) <span class="op">=></span> {
+  <span class="kw">const</span> { <span class="var">id</span> } <span class="op">=</span> <span class="var">req</span>.<span class="var">params</span>;         <span class="cmt">// destructuring</span>
+  <span class="kw">const</span> <span class="var">user</span> <span class="op">=</span> <span class="kw">await</span> <span class="var">User</span>.<span class="fn">findById</span>(<span class="var">id</span>);
+  <span class="kw">if</span> (<span class="op">!</span><span class="var">user</span>) <span class="kw">return</span> <span class="var">res</span>.<span class="fn">status</span>(<span class="num">404</span>).<span class="fn">json</span>({ <span class="var">message</span>: <span class="str">"Not found"</span> });
+  <span class="kw">const</span> { <span class="var">password</span>, ...<span class="var">safeUser</span> } <span class="op">=</span> <span class="var">user</span>.<span class="fn">toObject</span>();  <span class="cmt">// strip password</span>
+  <span class="var">res</span>.<span class="fn">json</span>(<span class="var">safeUser</span>);                <span class="cmt">// auto stringifies</span>
+});
+
+<span class="cmt">// React — receiving JSON from API</span>
+<span class="kw">const</span> <span class="fn">fetchUser</span> <span class="op">=</span> <span class="kw">async</span> (<span class="var">id</span>) <span class="op">=></span> {
+  <span class="kw">const</span> <span class="var">res</span>  <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/user/<span class="var">${id}</span>`</span>);
+  <span class="kw">const</span> <span class="var">data</span> <span class="op">=</span> <span class="kw">await</span> <span class="var">res</span>.<span class="fn">json</span>();    <span class="cmt">// parse JSON → object</span>
+  <span class="kw">const</span> { <span class="var">name</span>, <span class="var">email</span> } <span class="op">=</span> <span class="var">data</span>;    <span class="cmt">// destructure</span>
+  <span class="kw">return</span> { <span class="var">name</span>, <span class="var">email</span> };
+};</pre>
+    </div>
+    <div class="highlight-box green">
+      <p><strong>Deep clone trick:</strong> <code>JSON.parse(JSON.stringify(obj))</code> creates a deep copy of an object. It loses functions and <code>undefined</code> values, but for plain data objects (like API responses) it is the simplest deep clone. For complex objects use <code>structuredClone(obj)</code> (modern JS) or the <code>lodash</code> library.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;">
+    <p style="color:var(--muted);font-size:.82rem;font-family:'Fira Code',monospace;">
+      MERN Stack Course — Module 04 &nbsp;|&nbsp; Objects &amp; Modern JS &nbsp;|&nbsp;
+      <span style="color:var(--accent);">JavaScript complete → Next: Node.js &amp; Express</span>
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

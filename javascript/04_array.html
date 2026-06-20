@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS-04 — Arrays Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a; --surface: #13162a; --card: #1a1e35;
+    --border: rgba(99,120,255,0.18); --accent: #6378ff;
+    --accent2: #f7c948; --accent3: #3de8b0;
+    --text: #e8eaf6; --muted: #8b8fa8;
+    --tag-bg: rgba(99,120,255,0.12); --tag-text: #9aaeff;
+    --yellow: #f7c948; --green: #3de8b0; --red: #ff6b8a;
+    --code-bg: #0a0c18; --radius: 10px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+
+  .hero{background:linear-gradient(135deg,#0d0f1a,#141830,#0d1228);border-bottom:1px solid var(--border);padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'[ ]';position:absolute;font-size:14rem;font-weight:700;color:rgba(99,120,255,0.04);top:-1rem;left:50%;transform:translateX(-50%);font-family:'Fira Code',monospace;pointer-events:none;white-space:nowrap;}
+  .hero h1{font-size:2.4rem;font-weight:700;background:linear-gradient(135deg,#fff,#a8b4ff,#3de8b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+  .hero p{color:var(--muted);font-size:0.95rem;font-weight:300;}
+  .badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;}
+  .badge{background:var(--tag-bg);color:var(--tag-text);border:1px solid rgba(99,120,255,0.25);padding:4px 12px;border-radius:20px;font-size:0.78rem;font-family:'Fira Code',monospace;}
+
+  .container{max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+  .section{margin-bottom:2.5rem;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:1.2rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
+  .section-num{font-family:'Fira Code',monospace;font-size:.75rem;color:var(--accent);background:var(--tag-bg);border:1px solid rgba(99,120,255,.25);padding:3px 8px;border-radius:4px;}
+  .section-header h2{font-size:1.25rem;font-weight:600;color:#fff;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.4rem;margin-bottom:1rem;}
+  .card h3{font-size:.95rem;font-weight:600;color:var(--accent2);margin-bottom:.6rem;display:flex;align-items:center;gap:8px;}
+  .card h3 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);flex-shrink:0;}
+  .card p,.card li{color:#c5c9de;font-size:.88rem;line-height:1.75;}
+  .card ul{padding-left:1.2rem;}
+  .card li{margin-bottom:.3rem;}
+
+  code{font-family:'Fira Code',monospace;font-size:.82rem;background:var(--code-bg);color:var(--accent3);padding:2px 6px;border-radius:4px;border:1px solid rgba(61,232,176,.15);}
+  pre{background:var(--code-bg);border:1px solid rgba(99,120,255,.2);border-radius:8px;padding:1.1rem 1.2rem;overflow-x:auto;margin:.75rem 0;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.7;}
+  .kw{color:#ff79c6;} .fn{color:#6cb4ff;} .str{color:#f7c948;} .cmt{color:#555e8a;font-style:italic;} .num{color:#3de8b0;} .var{color:#e8eaf6;} .op{color:#ff6b8a;}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+
+  .highlight-box{border-left:3px solid var(--accent);background:rgba(99,120,255,.06);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1rem 0;}
+  .highlight-box.yellow{border-color:var(--yellow);background:rgba(247,201,72,.06);}
+  .highlight-box.green{border-color:var(--green);background:rgba(61,232,176,.06);}
+  .highlight-box.red{border-color:var(--red);background:rgba(255,107,138,.06);}
+  .highlight-box p{font-size:.88rem;color:#c5c9de;}
+  .highlight-box strong{color:#fff;font-weight:600;}
+
+  .recall-box{border:1px solid rgba(99,120,255,.25);background:rgba(99,120,255,.04);border-radius:var(--radius);padding:1rem 1.2rem;margin-bottom:1rem;position:relative;}
+  .recall-tag{position:absolute;top:-10px;left:12px;background:var(--bg);padding:0 8px;font-size:.7rem;font-family:'Fira Code',monospace;color:var(--accent);border:1px solid rgba(99,120,255,.3);border-radius:4px;letter-spacing:.05em;}
+  .recall-box p{font-size:.85rem;color:#9aa0c0;line-height:1.7;}
+  .recall-box pre{margin:.5rem 0 0;}
+
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .vs-col{padding:1rem 1.1rem;}
+  .vs-col:first-child{border-right:1px solid var(--border);background:rgba(255,107,138,.05);}
+  .vs-col:last-child{background:rgba(61,232,176,.05);}
+  .vs-col h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:.6rem;}
+  .vs-col:first-child h4{color:var(--red);}
+  .vs-col:last-child h4{color:var(--green);}
+  .vs-col ul{padding-left:1rem;list-style:none;}
+  .vs-col li{font-size:.82rem;color:#c5c9de;padding:3px 0;}
+  .vs-col li::before{content:'→ ';color:var(--muted);}
+
+  .method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.75rem;margin-top:.75rem;}
+  .method-card{background:rgba(99,120,255,.06);border:1px solid rgba(99,120,255,.18);border-radius:8px;padding:.8rem 1rem;}
+  .method-card .name{font-family:'Fira Code',monospace;font-size:.8rem;color:var(--accent3);font-weight:500;margin-bottom:.3rem;}
+  .method-card .desc{font-size:.76rem;color:var(--muted);line-height:1.5;}
+  .method-card .mut{font-size:.7rem;margin-top:.3rem;font-family:'Fira Code',monospace;}
+  .method-card .mut.yes{color:var(--red);} .method-card .mut.no{color:var(--green);}
+
+  .toc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:2rem;}
+  .toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.8rem;}
+  .toc ol{padding-left:1.2rem;}
+  .toc li{font-size:.85rem;color:var(--tag-text);padding:3px 0;}
+
+  .type-table{width:100%;border-collapse:collapse;font-size:.83rem;margin:.5rem 0;}
+  .type-table th{color:var(--muted);font-weight:500;text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;}
+  .type-table td{padding:7px 10px;border-bottom:1px solid rgba(99,120,255,.08);color:#c5c9de;}
+  .type-table tr:last-child td{border-bottom:none;}
+  .type-table .tag{color:var(--accent3);font-family:'Fira Code',monospace;}
+  .type-table .note{color:var(--muted);font-size:.78rem;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>JS-04 — Arrays Deep Dive</h1>
+  <p>The most-used data structure in JavaScript — and the shape of every MongoDB result</p>
+  <div class="badge-row">
+    <span class="badge">MERN Stack — Module 4</span>
+    <span class="badge">Creation · Mutation · Iteration · Loops Recall · Array of Objects</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li>What Is an Array — and How JS Stores It</li>
+      <li>Creating Arrays — Four Ways</li>
+      <li>Reading & Updating — Index, Length, Negative Access</li>
+      <li>Mutating Methods — They Change the Original</li>
+      <li>Non-Mutating Methods — They Return New Arrays</li>
+      <li>Search & Check Methods</li>
+      <li>Sorting & Reversing</li>
+      <li>flat() & flatMap() — Working with Nested Arrays</li>
+      <li>Loops on Arrays — Recall from Module 02</li>
+      <li>Iteration Methods — Deep Dive (map, filter, reduce & friends)</li>
+      <li>Array of Objects — The Shape of Real Data</li>
+      <li>2D Arrays — Matrix Operations</li>
+      <li>Common Array Patterns in MERN</li>
+    </ol>
+  </div>
+
+  <!-- ── SECTION 1 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>What Is an Array — and How JS Stores It</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>The Concept</h3>
+      <p>An array is an <strong>ordered, indexed collection of values</strong>. Unlike objects which use named keys, arrays use <strong>zero-based numeric indices</strong>. In JavaScript, arrays are actually a special kind of object — <code>typeof []</code> returns <code>"object"</code>.</p>
+      <p style="margin-top:.5rem;">Arrays can hold <em>any mix of types</em> — numbers, strings, booleans, objects, even other arrays. In practice, good code keeps arrays homogeneous (same type) for predictability.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Arrays Are Reference Types</h3>
+      <pre><span class="cmt">// Two variables can point to the SAME array</span>
+<span class="kw">const</span> <span class="var">a</span> <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> <span class="var">b</span> <span class="op">=</span> <span class="var">a</span>;         <span class="cmt">// b points to same memory</span>
+<span class="var">b</span>.<span class="fn">push</span>(<span class="num">4</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="var">a</span>);      <span class="cmt">// [1, 2, 3, 4] — a changed too!</span>
+
+<span class="cmt">// To clone: use spread or slice</span>
+<span class="kw">const</span> <span class="var">c</span> <span class="op">=</span> [...<span class="var">a</span>];    <span class="cmt">// shallow copy — independent</span>
+<span class="kw">const</span> <span class="var">d</span> <span class="op">=</span> <span class="var">a</span>.<span class="fn">slice</span>(); <span class="cmt">// also a shallow copy</span></pre>
+    </div>
+    <div class="highlight-box yellow">
+      <p><strong>MERN context:</strong> Every MongoDB <code>.find()</code> query returns an array of documents. Every React list render loops over an array. Express route handlers process arrays of middleware. Arrays are everywhere in MERN.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Creating Arrays — Four Ways</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>All Creation Methods</h3>
+      <pre><span class="cmt">// 1. Array literal — ALWAYS use this</span>
+<span class="kw">const</span> <span class="var">nums</span>    <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> <span class="var">empty</span>   <span class="op">=</span> [];
+<span class="kw">const</span> <span class="var">mixed</span>   <span class="op">=</span> [<span class="num">1</span>, <span class="str">"two"</span>, <span class="kw">true</span>, <span class="kw">null</span>, { <span class="var">id</span>: <span class="num">5</span> }];
+
+<span class="cmt">// 2. Array.from() — convert iterable/array-like to real array</span>
+<span class="var">Array</span>.<span class="fn">from</span>(<span class="str">"MERN"</span>);           <span class="cmt">// ["M","E","R","N"]</span>
+<span class="var">Array</span>.<span class="fn">from</span>({ <span class="var">length</span>: <span class="num">5</span> }, (<span class="var">_</span>, <span class="var">i</span>) <span class="op">=></span> <span class="var">i</span> <span class="op">+</span> <span class="num">1</span>);  <span class="cmt">// [1,2,3,4,5]</span>
+<span class="var">Array</span>.<span class="fn">from</span>(<span class="kw">new</span> <span class="fn">Set</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>]));       <span class="cmt">// [1,2,3] — deduplicate</span>
+
+<span class="cmt">// 3. Array.of() — creates from arguments (rarely needed)</span>
+<span class="var">Array</span>.<span class="fn">of</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>);             <span class="cmt">// [1, 2, 3]</span>
+<span class="var">Array</span>.<span class="fn">of</span>(<span class="num">7</span>);                  <span class="cmt">// [7]  — unlike new Array(7) which makes 7 empty slots</span>
+
+<span class="cmt">// 4. new Array() — avoid, confusing behaviour</span>
+<span class="kw">new</span> <span class="fn">Array</span>(<span class="num">3</span>);               <span class="cmt">// [empty × 3]  — NOT [3]!</span>
+<span class="kw">new</span> <span class="fn">Array</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>);         <span class="cmt">// [1, 2, 3]</span></pre>
+    </div>
+    <div class="highlight-box green">
+      <p><strong>Best practice:</strong> Always use the array literal <code>[]</code> for creation. Use <code>Array.from()</code> when converting something else (string, Set, NodeList, Map) into an array.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Reading & Updating — Index, Length, Negative Access</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Indexing</h3>
+      <pre><span class="kw">const</span> <span class="var">fruits</span> <span class="op">=</span> [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"mango"</span>, <span class="str">"kiwi"</span>];
+
+<span class="cmt">// Zero-based index</span>
+<span class="var">fruits</span>[<span class="num">0</span>];              <span class="cmt">// "apple"</span>
+<span class="var">fruits</span>[<span class="num">2</span>];              <span class="cmt">// "mango"</span>
+<span class="var">fruits</span>[<span class="num">10</span>];             <span class="cmt">// undefined — no error</span>
+
+<span class="cmt">// Last element</span>
+<span class="var">fruits</span>[<span class="var">fruits</span>.<span class="var">length</span> <span class="op">-</span> <span class="num">1</span>]; <span class="cmt">// "kiwi" — classic way</span>
+<span class="var">fruits</span>.<span class="fn">at</span>(<span class="op">-</span><span class="num">1</span>);           <span class="cmt">// "kiwi" — modern .at() method</span>
+<span class="var">fruits</span>.<span class="fn">at</span>(<span class="op">-</span><span class="num">2</span>);           <span class="cmt">// "mango"</span>
+
+<span class="cmt">// Update</span>
+<span class="var">fruits</span>[<span class="num">1</span>] <span class="op">=</span> <span class="str">"blueberry"</span>; <span class="cmt">// ["apple","blueberry","mango","kiwi"]</span>
+
+<span class="cmt">// Length</span>
+<span class="var">fruits</span>.<span class="var">length</span>;           <span class="cmt">// 4</span>
+<span class="var">fruits</span>.<span class="var">length</span> <span class="op">=</span> <span class="num">2</span>;       <span class="cmt">// truncates! → ["apple","blueberry"]</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Mutating Methods — They Change the Original</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Add & Remove</h3>
+      <pre><span class="kw">const</span> <span class="var">arr</span> <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+
+<span class="cmt">// Add to END</span>
+<span class="var">arr</span>.<span class="fn">push</span>(<span class="num">4</span>, <span class="num">5</span>);         <span class="cmt">// [1,2,3,4,5]  — returns new length</span>
+
+<span class="cmt">// Remove from END</span>
+<span class="var">arr</span>.<span class="fn">pop</span>();              <span class="cmt">// [1,2,3,4]   — returns removed item (5)</span>
+
+<span class="cmt">// Add to START</span>
+<span class="var">arr</span>.<span class="fn">unshift</span>(<span class="num">0</span>);         <span class="cmt">// [0,1,2,3,4] — returns new length</span>
+
+<span class="cmt">// Remove from START</span>
+<span class="var">arr</span>.<span class="fn">shift</span>();            <span class="cmt">// [1,2,3,4]   — returns removed item (0)</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>splice() — The Swiss Army Knife (Mutates!)</h3>
+      <pre><span class="cmt">// splice(startIndex, deleteCount, ...itemsToInsert)</span>
+<span class="kw">const</span> <span class="var">colors</span> <span class="op">=</span> [<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>, <span class="str">"yellow"</span>];
+
+<span class="cmt">// Delete 1 element at index 1</span>
+<span class="var">colors</span>.<span class="fn">splice</span>(<span class="num">1</span>, <span class="num">1</span>);
+<span class="cmt">// colors = ["red","blue","yellow"]  returns ["green"]</span>
+
+<span class="cmt">// Insert without deleting</span>
+<span class="var">colors</span>.<span class="fn">splice</span>(<span class="num">1</span>, <span class="num">0</span>, <span class="str">"pink"</span>, <span class="str">"purple"</span>);
+<span class="cmt">// colors = ["red","pink","purple","blue","yellow"]</span>
+
+<span class="cmt">// Replace: delete 1, insert 1</span>
+<span class="var">colors</span>.<span class="fn">splice</span>(<span class="num">2</span>, <span class="num">1</span>, <span class="str">"orange"</span>);
+<span class="cmt">// replaces "purple" with "orange"</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>sort() & reverse() — Mutate In Place</h3>
+      <pre><span class="cmt">// reverse() — straightforward</span>
+[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>].<span class="fn">reverse</span>();   <span class="cmt">// [3, 2, 1]  — mutates original!</span>
+
+<span class="cmt">// sort() — DEFAULT sorts as strings (⚠️ common bug)</span>
+[<span class="num">10</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">100</span>].<span class="fn">sort</span>();   <span class="cmt">// [10, 100, 2, 9] — WRONG for numbers!</span>
+
+<span class="cmt">// sort() with comparator — correct way for numbers</span>
+[<span class="num">10</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">100</span>].<span class="fn">sort</span>((<span class="var">a</span>, <span class="var">b</span>) <span class="op">=></span> <span class="var">a</span> <span class="op">-</span> <span class="var">b</span>);  <span class="cmt">// [2,9,10,100] ascending</span>
+[<span class="num">10</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">100</span>].<span class="fn">sort</span>((<span class="var">a</span>, <span class="var">b</span>) <span class="op">=></span> <span class="var">b</span> <span class="op">-</span> <span class="var">a</span>);  <span class="cmt">// [100,10,9,2] descending</span>
+
+<span class="cmt">// Sort strings alphabetically</span>
+[<span class="str">"banana"</span>, <span class="str">"apple"</span>, <span class="str">"mango"</span>].<span class="fn">sort</span>();  <span class="cmt">// ["apple","banana","mango"] ✅</span>
+
+<span class="cmt">// Sort without mutating — spread first</span>
+<span class="kw">const</span> <span class="var">sorted</span> <span class="op">=</span> [...<span class="var">nums</span>].<span class="fn">sort</span>((<span class="var">a</span>,<span class="var">b</span>) <span class="op">=></span> <span class="var">a</span> <span class="op">-</span> <span class="var">b</span>);  <span class="cmt">// original safe</span></pre>
+    </div>
+    <div class="highlight-box red">
+      <p><strong>Critical:</strong> <code>push</code>, <code>pop</code>, <code>shift</code>, <code>unshift</code>, <code>splice</code>, <code>sort</code>, <code>reverse</code> all <strong>mutate the original array</strong>. In React state updates you should <em>never</em> mutate — always create a new array using spread or non-mutating methods.</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Non-Mutating Methods — They Return New Arrays</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>slice() — Extract Without Changing</h3>
+      <pre><span class="cmt">// slice(startIndex, endIndex) — end is EXCLUSIVE</span>
+<span class="kw">const</span> <span class="var">arr</span> <span class="op">=</span> [<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>, <span class="str">"d"</span>, <span class="str">"e"</span>];
+
+<span class="var">arr</span>.<span class="fn">slice</span>(<span class="num">1</span>, <span class="num">3</span>);   <span class="cmt">// ["b","c"]  — index 1 up to (not including) 3</span>
+<span class="var">arr</span>.<span class="fn">slice</span>(<span class="num">2</span>);     <span class="cmt">// ["c","d","e"] — from index 2 to end</span>
+<span class="var">arr</span>.<span class="fn">slice</span>(<span class="op">-</span><span class="num">2</span>);    <span class="cmt">// ["d","e"] — last 2 elements</span>
+<span class="var">arr</span>.<span class="fn">slice</span>();     <span class="cmt">// ["a","b","c","d","e"] — full shallow copy</span>
+<span class="cmt">// Original arr unchanged</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>concat() & the Spread Alternative</h3>
+      <pre><span class="kw">const</span> <span class="var">a</span> <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>];
+<span class="kw">const</span> <span class="var">b</span> <span class="op">=</span> [<span class="num">3</span>, <span class="num">4</span>];
+<span class="kw">const</span> <span class="var">c</span> <span class="op">=</span> [<span class="num">5</span>, <span class="num">6</span>];
+
+<span class="cmt">// concat — joins arrays, returns new one</span>
+<span class="var">a</span>.<span class="fn">concat</span>(<span class="var">b</span>, <span class="var">c</span>);       <span class="cmt">// [1,2,3,4,5,6]</span>
+
+<span class="cmt">// Modern spread equivalent (preferred)</span>
+[...<span class="var">a</span>, ...<span class="var">b</span>, ...<span class="var">c</span>];    <span class="cmt">// [1,2,3,4,5,6]</span>
+
+<span class="cmt">// join — array to string</span>
+[<span class="str">"Node"</span>, <span class="str">"Express"</span>, <span class="str">"Mongo"</span>].<span class="fn">join</span>(<span class="str">" + "</span>);
+<span class="cmt">// "Node + Express + Mongo"</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Search & Check Methods</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Finding Values</h3>
+      <pre><span class="kw">const</span> <span class="var">scores</span> <span class="op">=</span> [<span class="num">40</span>, <span class="num">75</span>, <span class="num">90</span>, <span class="num">75</span>, <span class="num">55</span>];
+
+<span class="cmt">// indexOf — first occurrence, returns index or -1</span>
+<span class="var">scores</span>.<span class="fn">indexOf</span>(<span class="num">75</span>);         <span class="cmt">// 1</span>
+<span class="var">scores</span>.<span class="fn">indexOf</span>(<span class="num">100</span>);        <span class="cmt">// -1 (not found)</span>
+
+<span class="cmt">// lastIndexOf — last occurrence</span>
+<span class="var">scores</span>.<span class="fn">lastIndexOf</span>(<span class="num">75</span>);     <span class="cmt">// 3</span>
+
+<span class="cmt">// includes — simple true/false</span>
+<span class="var">scores</span>.<span class="fn">includes</span>(<span class="num">90</span>);        <span class="cmt">// true</span>
+<span class="var">scores</span>.<span class="fn">includes</span>(<span class="num">100</span>);       <span class="cmt">// false</span>
+
+<span class="cmt">// find — first item matching condition (returns item, not index)</span>
+<span class="var">scores</span>.<span class="fn">find</span>(<span class="var">s</span> <span class="op">=></span> <span class="var">s</span> <span class="op">></span> <span class="num">70</span>);   <span class="cmt">// 75 (first match)</span>
+
+<span class="cmt">// findIndex — first index matching condition</span>
+<span class="var">scores</span>.<span class="fn">findIndex</span>(<span class="var">s</span> <span class="op">=></span> <span class="var">s</span> <span class="op">></span> <span class="num">70</span>); <span class="cmt">// 1</span>
+
+<span class="cmt">// findLast / findLastIndex (ES2023) — search from end</span>
+<span class="var">scores</span>.<span class="fn">findLast</span>(<span class="var">s</span> <span class="op">=></span> <span class="var">s</span> <span class="op">></span> <span class="num">70</span>);  <span class="cmt">// 90</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Type Checking</h3>
+      <pre><span class="var">Array</span>.<span class="fn">isArray</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]);  <span class="cmt">// true  — reliable check</span>
+<span class="var">Array</span>.<span class="fn">isArray</span>(<span class="str">"hello"</span>);    <span class="cmt">// false</span>
+<span class="kw">typeof</span> [];                  <span class="cmt">// "object"  — NOT reliable, don't use for arrays</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Sorting & Reversing</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Sorting Arrays of Objects</h3>
+      <pre><span class="kw">const</span> <span class="var">products</span> <span class="op">=</span> [
+  { <span class="var">name</span>: <span class="str">"Laptop"</span>,  <span class="var">price</span>: <span class="num">45000</span> },
+  { <span class="var">name</span>: <span class="str">"Mouse"</span>,   <span class="var">price</span>: <span class="num">800</span>   },
+  { <span class="var">name</span>: <span class="str">"Monitor"</span>, <span class="var">price</span>: <span class="num">18000</span> },
+];
+
+<span class="cmt">// Sort by price ascending</span>
+[...<span class="var">products</span>].<span class="fn">sort</span>((<span class="var">a</span>, <span class="var">b</span>) <span class="op">=></span> <span class="var">a</span>.<span class="var">price</span> <span class="op">-</span> <span class="var">b</span>.<span class="var">price</span>);
+<span class="cmt">// Mouse → Monitor → Laptop</span>
+
+<span class="cmt">// Sort by name alphabetically</span>
+[...<span class="var">products</span>].<span class="fn">sort</span>((<span class="var">a</span>, <span class="var">b</span>) <span class="op">=></span> <span class="var">a</span>.<span class="var">name</span>.<span class="fn">localeCompare</span>(<span class="var">b</span>.<span class="var">name</span>));
+<span class="cmt">// Laptop → Monitor → Mouse
+
+// Comparator logic:
+// a - b  < 0 → a comes first
+// a - b  > 0 → b comes first
+// a - b === 0 → equal, no change</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>flat() & flatMap() — Working with Nested Arrays</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>flat() — Collapse Nested Arrays</h3>
+      <pre><span class="kw">const</span> <span class="var">nested</span> <span class="op">=</span> [<span class="num">1</span>, [<span class="num">2</span>, <span class="num">3</span>], [<span class="num">4</span>, [<span class="num">5</span>, <span class="num">6</span>]]];
+
+<span class="var">nested</span>.<span class="fn">flat</span>();       <span class="cmt">// [1,2,3,4,[5,6]] — 1 level deep (default)</span>
+<span class="var">nested</span>.<span class="fn">flat</span>(<span class="num">2</span>);      <span class="cmt">// [1,2,3,4,5,6]   — 2 levels deep</span>
+<span class="var">nested</span>.<span class="fn">flat</span>(<span class="var">Infinity</span>); <span class="cmt">// [1,2,3,4,5,6] — all levels</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>flatMap() — map then flat (1 level)</h3>
+      <pre><span class="cmt">// flatMap = .map() + .flat(1) combined</span>
+<span class="kw">const</span> <span class="var">sentences</span> <span class="op">=</span> [<span class="str">"Hello World"</span>, <span class="str">"MERN Stack"</span>];
+
+<span class="var">sentences</span>.<span class="fn">map</span>(<span class="var">s</span> <span class="op">=></span> <span class="var">s</span>.<span class="fn">split</span>(<span class="str">" "</span>));
+<span class="cmt">// [["Hello","World"],["MERN","Stack"]] — nested</span>
+
+<span class="var">sentences</span>.<span class="fn">flatMap</span>(<span class="var">s</span> <span class="op">=></span> <span class="var">s</span>.<span class="fn">split</span>(<span class="str">" "</span>));
+<span class="cmt">// ["Hello","World","MERN","Stack"] — flat</span>
+
+<span class="cmt">// Use case: each item expands to multiple items</span>
+<span class="kw">const</span> <span class="var">orders</span> <span class="op">=</span> [
+  { <span class="var">user</span>: <span class="str">"Ali"</span>,  <span class="var">items</span>: [<span class="str">"Book"</span>, <span class="str">"Pen"</span>] },
+  { <span class="var">user</span>: <span class="str">"Sara"</span>, <span class="var">items</span>: [<span class="str">"Bag"</span>] },
+];
+<span class="var">orders</span>.<span class="fn">flatMap</span>(<span class="var">o</span> <span class="op">=></span> <span class="var">o</span>.<span class="var">items</span>);
+<span class="cmt">// ["Book","Pen","Bag"]</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9 — RECALL ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Loops on Arrays — Recall from Module 02</h2>
+    </div>
+
+    <div class="recall-box">
+      <span class="recall-tag">📌 RECALL — Module 02</span>
+      <p>We covered all loop types in Module 02. This is a quick reference for how each applies to arrays specifically. In the exercise, you will use loops on harder array shapes — 2D arrays and arrays of objects.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot"></span>Classic for — When You Need Index</h3>
+        <pre><span class="kw">const</span> <span class="var">arr</span> <span class="op">=</span> [<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>];
+<span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">arr</span>.<span class="var">length</span>; <span class="var">i</span><span class="op">++</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">i</span>, <span class="var">arr</span>[<span class="var">i</span>]);
+}
+<span class="cmt">// Use when: modifying by index,
+// iterating backwards, or
+// breaking early with complex logic</span></pre>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>for...of — Clean Value Iteration</h3>
+        <pre><span class="kw">for</span> (<span class="kw">const</span> <span class="var">item</span> <span class="kw">of</span> <span class="var">arr</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">item</span>);
+}
+<span class="cmt">// Use when: you just need values,
+// don't need index, want clean code.
+// Works with break/continue ✅</span></pre>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>forEach — Callback Style</h3>
+        <pre><span class="var">arr</span>.<span class="fn">forEach</span>((<span class="var">item</span>, <span class="var">index</span>) <span class="op">=></span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">index</span>, <span class="var">item</span>);
+});
+<span class="cmt">// Use when: you need both value
+// and index in functional style.
+// Cannot break/continue ❌</span></pre>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>while — Condition-Based</h3>
+        <pre><span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="var">arr</span>.<span class="var">length</span> <span class="op">-</span> <span class="num">1</span>;
+<span class="kw">while</span> (<span class="var">i</span> <span class="op">>=</span> <span class="num">0</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">arr</span>[<span class="var">i</span>]);
+  <span class="var">i</span><span class="op">--</span>;
+}
+<span class="cmt">// Use when: iterating backwards,
+// or condition depends on runtime
+// state (not just index)</span></pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:.5rem;">
+      <h3><span class="dot"></span>Loop Choice Quick Guide</h3>
+      <table class="type-table" style="background:var(--code-bg);border-radius:8px;overflow:hidden;border:1px solid rgba(99,120,255,.2);">
+        <thead><tr>
+          <th>Situation</th><th>Best Choice</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Just need values</td><td class="tag">for...of</td></tr>
+          <tr><td>Need index too</td><td class="tag">for  or  forEach</td></tr>
+          <tr><td>Need to break early</td><td class="tag">for  or  for...of</td></tr>
+          <tr><td>Transform each item → new array</td><td class="tag">map()</td></tr>
+          <tr><td>Keep items matching condition</td><td class="tag">filter()</td></tr>
+          <tr><td>Collapse to single value</td><td class="tag">reduce()</td></tr>
+          <tr><td>Iterate backwards</td><td class="tag">for  or  while</td></tr>
+          <tr><td>Unknown number of iterations</td><td class="tag">while</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SECTION 10 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Iteration Methods — Deep Dive</h2>
+    </div>
+
+    <div class="recall-box">
+      <span class="recall-tag">📌 RECALL — Module 02</span>
+      <p>map, filter, reduce, find, findIndex, some, every, forEach were introduced in Module 02 with simple data. Here we go deeper — chaining, edge cases, harder patterns, and real MERN shapes.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot"></span>map() — Transform Shape</h3>
+      <pre><span class="kw">const</span> <span class="var">users</span> <span class="op">=</span> [
+  { <span class="var">id</span>: <span class="num">1</span>, <span class="var">firstName</span>: <span class="str">"Ali"</span>,  <span class="var">lastName</span>: <span class="str">"Khan"</span>  },
+  { <span class="var">id</span>: <span class="num">2</span>, <span class="var">firstName</span>: <span class="str">"Sara"</span>, <span class="var">lastName</span>: <span class="str">"Ahmed"</span> },
+];
+
+<span class="cmt">// Add a fullName field — shape transformation</span>
+<span class="kw">const</span> <span class="var">withFullName</span> <span class="op">=</span> <span class="var">users</span>.<span class="fn">map</span>(<span class="var">u</span> <span class="op">=></span> ({
+  ...<span class="var">u</span>,
+  <span class="var">fullName</span>: <span class="str">`<span class="var">${u.firstName}</span> <span class="var">${u.lastName}</span>`</span>
+}));
+
+<span class="cmt">// Pick only specific fields (projection — like MongoDB select)</span>
+<span class="kw">const</span> <span class="var">ids</span> <span class="op">=</span> <span class="var">users</span>.<span class="fn">map</span>(<span class="var">u</span> <span class="op">=></span> <span class="var">u</span>.<span class="var">id</span>);   <span class="cmt">// [1, 2]</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>filter() + map() Chaining</h3>
+      <pre><span class="kw">const</span> <span class="var">orders</span> <span class="op">=</span> [
+  { <span class="var">id</span>: <span class="num">1</span>, <span class="var">status</span>: <span class="str">"delivered"</span>, <span class="var">amount</span>: <span class="num">1200</span> },
+  { <span class="var">id</span>: <span class="num">2</span>, <span class="var">status</span>: <span class="str">"pending"</span>,   <span class="var">amount</span>: <span class="num">800</span>  },
+  { <span class="var">id</span>: <span class="num">3</span>, <span class="var">status</span>: <span class="str">"delivered"</span>, <span class="var">amount</span>: <span class="num">2500</span> },
+  { <span class="var">id</span>: <span class="num">4</span>, <span class="var">status</span>: <span class="str">"cancelled"</span>, <span class="var">amount</span>: <span class="num">300</span>  },
+];
+
+<span class="cmt">// Get amounts of all delivered orders</span>
+<span class="kw">const</span> <span class="var">deliveredAmounts</span> <span class="op">=</span> <span class="var">orders</span>
+  .<span class="fn">filter</span>(<span class="var">o</span> <span class="op">=></span> <span class="var">o</span>.<span class="var">status</span> <span class="op">===</span> <span class="str">"delivered"</span>)
+  .<span class="fn">map</span>(<span class="var">o</span> <span class="op">=></span> <span class="var">o</span>.<span class="var">amount</span>);
+<span class="cmt">// [1200, 2500]</span>
+
+<span class="cmt">// Total revenue from delivered orders</span>
+<span class="kw">const</span> <span class="var">revenue</span> <span class="op">=</span> <span class="var">orders</span>
+  .<span class="fn">filter</span>(<span class="var">o</span> <span class="op">=></span> <span class="var">o</span>.<span class="var">status</span> <span class="op">===</span> <span class="str">"delivered"</span>)
+  .<span class="fn">reduce</span>((<span class="var">sum</span>, <span class="var">o</span>) <span class="op">=></span> <span class="var">sum</span> <span class="op">+</span> <span class="var">o</span>.<span class="var">amount</span>, <span class="num">0</span>);
+<span class="cmt">// 3700</span></pre>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>reduce() — Advanced Patterns</h3>
+      <pre><span class="kw">const</span> <span class="var">items</span> <span class="op">=</span> [
+  { <span class="var">category</span>: <span class="str">"fruit"</span>,  <span class="var">name</span>: <span class="str">"apple"</span>  },
+  { <span class="var">category</span>: <span class="str">"veggie"</span>, <span class="var">name</span>: <span class="str">"carrot"</span> },
+  { <span class="var">category</span>: <span class="str">"fruit"</span>,  <span class="var">name</span>: <span class="str">"mango"</span>  },
+  { <span class="var">category</span>: <span class="str">"veggie"</span>, <span class="var">name</span>: <span class="str">"peas"</span>   },
+];
+
+<span class="cmt">// Group by category → { fruit:[...], veggie:[...] }</span>
+<span class="kw">const</span> <span class="var">grouped</span> <span class="op">=</span> <span class="var">items</span>.<span class="fn">reduce</span>((<span class="var">acc</span>, <span class="var">item</span>) <span class="op">=></span> {
+  <span class="kw">const</span> <span class="var">key</span> <span class="op">=</span> <span class="var">item</span>.<span class="var">category</span>;
+  <span class="kw">if</span> (<span class="op">!</span><span class="var">acc</span>[<span class="var">key</span>]) <span class="var">acc</span>[<span class="var">key</span>] <span class="op">=</span> [];
+  <span class="var">acc</span>[<span class="var">key</span>].<span class="fn">push</span>(<span class="var">item</span>.<span class="var">name</span>);
+  <span class="kw">return</span> <span class="var">acc</span>;
+}, {});
+<span class="cmt">// { fruit:["apple","mango"], veggie:["carrot","peas"] }
+
+// Deduplicate array using reduce</span>
+<span class="kw">const</span> <span class="var">dupes</span>  <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">4</span>];
+<span class="kw">const</span> <span class="var">unique</span> <span class="op">=</span> [... <span class="kw">new</span> <span class="fn">Set</span>(<span class="var">dupes</span>)];  <span class="cmt">// [1,2,3,4] — cleaner way</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2>Array of Objects — The Shape of Real Data</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>This Is What MongoDB Returns</h3>
+      <p>When you run <code>User.find()</code> in Mongoose or any <code>.find()</code> query, you get back an <strong>array of objects</strong>. Every operation you do on that data — filtering, transforming, sorting, grouping — uses what you've learned in this module.</p>
+      <pre><span class="cmt">// Typical MongoDB result shape</span>
+<span class="kw">const</span> <span class="var">users</span> <span class="op">=</span> [
+  { <span class="var">_id</span>: <span class="str">"64a1"</span>, <span class="var">name</span>: <span class="str">"Ahmed"</span>, <span class="var">role</span>: <span class="str">"admin"</span>,  <span class="var">score</span>: <span class="num">88</span> },
+  { <span class="var">_id</span>: <span class="str">"64a2"</span>, <span class="var">name</span>: <span class="str">"Sara"</span>,  <span class="var">role</span>: <span class="str">"user"</span>,   <span class="var">score</span>: <span class="num">72</span> },
+  { <span class="var">_id</span>: <span class="str">"64a3"</span>, <span class="var">name</span>: <span class="str">"Priya"</span>, <span class="var">role</span>: <span class="str">"user"</span>,   <span class="var">score</span>: <span class="num">95</span> },
+];
+
+<span class="cmt">// Find one by id (like findById)</span>
+<span class="var">users</span>.<span class="fn">find</span>(<span class="var">u</span> <span class="op">=></span> <span class="var">u</span>.<span class="var">_id</span> <span class="op">===</span> <span class="str">"64a2"</span>);
+
+<span class="cmt">// Filter by role</span>
+<span class="var">users</span>.<span class="fn">filter</span>(<span class="var">u</span> <span class="op">=></span> <span class="var">u</span>.<span class="var">role</span> <span class="op">===</span> <span class="str">"user"</span>);
+
+<span class="cmt">// Sort by score descending</span>
+[...<span class="var">users</span>].<span class="fn">sort</span>((<span class="var">a</span>, <span class="var">b</span>) <span class="op">=></span> <span class="var">b</span>.<span class="var">score</span> <span class="op">-</span> <span class="var">a</span>.<span class="var">score</span>);
+
+<span class="cmt">// Update one item immutably (React pattern)</span>
+<span class="var">users</span>.<span class="fn">map</span>(<span class="var">u</span> <span class="op">=></span> <span class="var">u</span>.<span class="var">_id</span> <span class="op">===</span> <span class="str">"64a1"</span> <span class="op">?</span> { ...<span class="var">u</span>, <span class="var">score</span>: <span class="num">99</span> } <span class="op">:</span> <span class="var">u</span>);
+
+<span class="cmt">// Delete one item immutably</span>
+<span class="var">users</span>.<span class="fn">filter</span>(<span class="var">u</span> <span class="op">=></span> <span class="var">u</span>.<span class="var">_id</span> <span class="op">!==</span> <span class="str">"64a3"</span>);</pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 12 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2>2D Arrays — Matrix Operations</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Creating & Accessing a Matrix</h3>
+      <pre><span class="cmt">// A 3x3 matrix (array of arrays)</span>
+<span class="kw">const</span> <span class="var">matrix</span> <span class="op">=</span> [
+  [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>],
+  [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>],
+  [<span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>],
+];
+
+<span class="cmt">// Access: matrix[row][column]</span>
+<span class="var">matrix</span>[<span class="num">0</span>][<span class="num">0</span>];    <span class="cmt">// 1</span>
+<span class="var">matrix</span>[<span class="num">1</span>][<span class="num">2</span>];    <span class="cmt">// 6</span>
+<span class="var">matrix</span>[<span class="num">2</span>][<span class="num">1</span>];    <span class="cmt">// 8</span>
+
+<span class="cmt">// Iterate all cells</span>
+<span class="kw">for</span> (<span class="kw">const</span> <span class="var">row</span> <span class="kw">of</span> <span class="var">matrix</span>) {
+  <span class="kw">for</span> (<span class="kw">const</span> <span class="var">cell</span> <span class="kw">of</span> <span class="var">row</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="var">cell</span>);
+  }
+}
+
+<span class="cmt">// Flatten to 1D</span>
+<span class="var">matrix</span>.<span class="fn">flat</span>();    <span class="cmt">// [1,2,3,4,5,6,7,8,9]</span>
+
+<span class="cmt">// Real use: seats in a theatre, grid game, spreadsheet data</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 13 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2>Common Array Patterns in MERN</h2>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Patterns You'll Write Every Day</h3>
+      <pre><span class="cmt">// 1. Deduplicate values</span>
+<span class="kw">const</span> <span class="var">tags</span>   <span class="op">=</span> [<span class="str">"js"</span>, <span class="str">"node"</span>, <span class="str">"js"</span>, <span class="str">"react"</span>];
+<span class="kw">const</span> <span class="var">unique</span> <span class="op">=</span> [...<span class="kw">new</span> <span class="fn">Set</span>(<span class="var">tags</span>)];  <span class="cmt">// ["js","node","react"]</span>
+
+<span class="cmt">// 2. Paginate an array (Express API pattern)</span>
+<span class="kw">function</span> <span class="fn">paginate</span>(<span class="var">arr</span>, <span class="var">page</span>, <span class="var">limit</span>) {
+  <span class="kw">const</span> <span class="var">start</span> <span class="op">=</span> (<span class="var">page</span> <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="var">limit</span>;
+  <span class="kw">return</span> <span class="var">arr</span>.<span class="fn">slice</span>(<span class="var">start</span>, <span class="var">start</span> <span class="op">+</span> <span class="var">limit</span>);
+}
+<span class="fn">paginate</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>,<span class="num">10</span>], <span class="num">2</span>, <span class="num">3</span>);  <span class="cmt">// [4,5,6] — page 2, 3 per page</span>
+
+<span class="cmt">// 3. Toggle item in array (React cart pattern)</span>
+<span class="kw">function</span> <span class="fn">toggleItem</span>(<span class="var">arr</span>, <span class="var">item</span>) {
+  <span class="kw">return</span> <span class="var">arr</span>.<span class="fn">includes</span>(<span class="var">item</span>)
+    <span class="op">?</span> <span class="var">arr</span>.<span class="fn">filter</span>(<span class="var">i</span> <span class="op">=></span> <span class="var">i</span> <span class="op">!==</span> <span class="var">item</span>)   <span class="cmt">// remove</span>
+    <span class="op">:</span> [...<span class="var">arr</span>, <span class="var">item</span>];               <span class="cmt">// add</span>
+}
+
+<span class="cmt">// 4. Move item in array (drag-and-drop)</span>
+<span class="kw">function</span> <span class="fn">moveItem</span>(<span class="var">arr</span>, <span class="var">from</span>, <span class="var">to</span>) {
+  <span class="kw">const</span> <span class="var">copy</span> <span class="op">=</span> [...<span class="var">arr</span>];
+  <span class="kw">const</span> [<span class="var">item</span>] <span class="op">=</span> <span class="var">copy</span>.<span class="fn">splice</span>(<span class="var">from</span>, <span class="num">1</span>);
+  <span class="var">copy</span>.<span class="fn">splice</span>(<span class="var">to</span>, <span class="num">0</span>, <span class="var">item</span>);
+  <span class="kw">return</span> <span class="var">copy</span>;
+}
+
+<span class="cmt">// 5. Chunk array into groups (batch processing)</span>
+<span class="kw">function</span> <span class="fn">chunk</span>(<span class="var">arr</span>, <span class="var">size</span>) {
+  <span class="kw">const</span> <span class="var">chunks</span> <span class="op">=</span> [];
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> <span class="op">=</span> <span class="num">0</span>; <span class="var">i</span> <span class="op">&lt;</span> <span class="var">arr</span>.<span class="var">length</span>; <span class="var">i</span> <span class="op">+=</span> <span class="var">size</span>) {
+    <span class="var">chunks</span>.<span class="fn">push</span>(<span class="var">arr</span>.<span class="fn">slice</span>(<span class="var">i</span>, <span class="var">i</span> <span class="op">+</span> <span class="var">size</span>));
+  }
+  <span class="kw">return</span> <span class="var">chunks</span>;
+}
+<span class="fn">chunk</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>], <span class="num">2</span>);  <span class="cmt">// [[1,2],[3,4],[5,6]]</span></pre>
+    </div>
+    <div class="highlight-box green">
+      <p><strong>MERN context:</strong> Paginate → Express API responses. Toggle → React wishlist/cart. Move → React kanban boards. Chunk → batch email sends in Node.js. Group by → MongoDB aggregation equivalent in JS. These 5 patterns repeat constantly across the full stack.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;">
+    <p style="color:var(--muted);font-size:.82rem;font-family:'Fira Code',monospace;">
+      MERN Stack Course — Module 04 &nbsp;|&nbsp; Arrays Deep Dive &nbsp;|&nbsp;
+      <span style="color:var(--accent);">Next: JS-05 → Objects, call/bind/apply &amp; Modern JS</span>
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
